@@ -1,6 +1,7 @@
 # aictl
 
-> [!CAUTION] Still in progress, it does not work yet. Please wait
+> [!CAUTION]
+> Still in progress, it does not work yet. Please wait
 
 Handy CLI accessing generative AI.
 
