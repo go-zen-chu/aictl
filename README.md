@@ -1,5 +1,7 @@
 # aictl
 
+> [!CAUTION] Still in progress, it does not work yet. Please wait
+
 Handy CLI accessing generative AI.
 
 [![Documentation](https://pkg.go.dev/badge/github.com/go-zen-chu/golang-template)](http:///pkg.go.dev/github.com/go-zen-chu/golang-template)
