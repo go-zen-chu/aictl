@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/go-zen-chu/golang-template/cmd/aictl"
+import "github.com/go-zen-chu/aictl/cmd/aictl/cmd"
 
 func main() {
 	cmd.Execute()
