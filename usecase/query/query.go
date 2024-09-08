@@ -6,11 +6,11 @@ import (
 )
 
 type UsecaseQuery interface {
-	QueryToOpenAI(query string) (string, error)
+	QueryToOpenAI(query string, outputFormat string) (string, error)
 }
 
 type OpenAIClient interface {
-	Ask(ctx context.Context, query string) (string, error)
+	Ask(ctx context.Context, query string, outputFormat string) (string, error)
 }
 
 type usecaseQuery struct {
@@ -23,8 +23,8 @@ func NewUsecaseQuery(openAIClient OpenAIClient) UsecaseQuery {
 	}
 }
 
-func (uq *usecaseQuery) QueryToOpenAI(query string) (string, error) {
-	res, err := uq.openAIClient.Ask(context.Background(), query)
+func (uq *usecaseQuery) QueryToOpenAI(query string, outputFormat string) (string, error) {
+	res, err := uq.openAIClient.Ask(context.Background(), query, outputFormat)
 	if err != nil {
 		return "", fmt.Errorf("ask to openai: %w", err)
 	}

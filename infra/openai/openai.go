@@ -19,14 +19,24 @@ func NewOpenAIClient(token string) query.OpenAIClient {
 	}
 }
 
-func (c *openaiClient) Ask(ctx context.Context, query string) (string, error) {
+var queryTemplate = `%s
+Return your response **ONLY** with valid %s format.`
+
+func (c *openaiClient) Ask(ctx context.Context, query string, outputFormat string) (string, error) {
+	resType := goa.ChatCompletionResponseFormatTypeText
+	if outputFormat == "json" {
+		resType = goa.ChatCompletionResponseFormatTypeJSONObject
+	}
 	resp, err := c.cli.CreateChatCompletion(ctx, goa.ChatCompletionRequest{
 		Model: goa.GPT4oMini,
 		Messages: []goa.ChatCompletionMessage{
 			{
 				Role:    goa.ChatMessageRoleUser,
-				Content: query,
+				Content: fmt.Sprintf(queryTemplate, query, outputFormat),
 			},
+		},
+		ResponseFormat: &goa.ChatCompletionResponseFormat{
+			Type: resType,
 		},
 	})
 	if err != nil {

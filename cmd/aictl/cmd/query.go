@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -20,11 +17,11 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return fmt.Errorf("query command requires only 1 argument `query text`")
+		if err := validate(args); err != nil {
+			return fmt.Errorf("validation in query: %w", err)
 		}
 		uq := dic.UsecaseQuery()
-		res, err := uq.QueryToOpenAI(args[0])
+		res, err := uq.QueryToOpenAI(args[0], outputFormat)
 		if err != nil {
 			return fmt.Errorf("query to openai: %w", err)
 		}
@@ -33,14 +30,23 @@ to quickly create a Cobra application.`,
 	},
 }
 
+var outputFormat string
+
 func init() {
 	rootCmd.AddCommand(queryCmd)
 
-	// Here you will define your flags and configuration settings.
+	queryCmd.Flags().StringVarP(&outputFormat, "output", "o", "text", "Output format text or json (default is text)")
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// queryCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// queryCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func validate(args []string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("query command requires only 1 argument `query text`")
+	}
+	if outputFormat == "" {
+		return fmt.Errorf("output format is required but got empty")
+	}
+	if outputFormat != "text" && outputFormat != "json" {
+		return fmt.Errorf("output format must be text or json but got: %s", outputFormat)
+	}
+	return nil
 }
