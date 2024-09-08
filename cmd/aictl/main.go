@@ -21,7 +21,19 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/go-zen-chu/aictl/cmd/aictl/cmd"
+import (
+	"log/slog"
+	"os"
+
+	"github.com/go-zen-chu/aictl/cmd/aictl/cmd"
+)
+
+func init() {
+	// set logger to output to stderr because stdout is used for Generative AI response
+	handler := slog.NewTextHandler(os.Stderr, nil)
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+}
 
 func main() {
 	cmd.Execute()

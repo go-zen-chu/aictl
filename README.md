@@ -16,7 +16,7 @@ Handy CLI accessing generative AI.
 Currently aictl supports only environment variable.
 
 ```bash
-AICTL_OPENAI_TOKEN="your token here"
+AICTL_OPENAI_API_KEY="your openai api key here"
 ```
 
 ### In terminal

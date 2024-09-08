@@ -1,6 +1,5 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
@@ -20,8 +19,17 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("query called")
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			return fmt.Errorf("query command requires only 1 argument `query text`")
+		}
+		uq := dic.UsecaseQuery()
+		res, err := uq.QueryToOpenAI(args[0])
+		if err != nil {
+			return fmt.Errorf("query to openai: %w", err)
+		}
+		fmt.Printf("%s", res)
+		return nil
 	},
 }
 
@@ -34,7 +42,5 @@ func init() {
 	// and all subcommands, e.g.:
 	// queryCmd.PersistentFlags().String("foo", "", "A help for foo")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
 	// queryCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
