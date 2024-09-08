@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -21,7 +23,17 @@ to quickly create a Cobra application.`,
 			return fmt.Errorf("validation in query: %w", err)
 		}
 		uq := dic.UsecaseQuery()
-		res, err := uq.QueryToOpenAI(args[0], outputFormat)
+		query := ""
+		if inputStdin {
+			stdin, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				return fmt.Errorf("read stdin: %w", err)
+			}
+			query = string(stdin)
+		} else {
+			query = args[0]
+		}
+		res, err := uq.QueryToOpenAI(query, outputFormat)
 		if err != nil {
 			return fmt.Errorf("query to openai: %w", err)
 		}
@@ -31,15 +43,17 @@ to quickly create a Cobra application.`,
 }
 
 var outputFormat string
+var inputStdin bool
 
 func init() {
 	rootCmd.AddCommand(queryCmd)
 
 	queryCmd.Flags().StringVarP(&outputFormat, "output", "o", "text", "Output format text or json (default is text)")
+	queryCmd.Flags().BoolVarP(&inputStdin, "stdin", "i", false, "Read query from stdin")
 }
 
 func validate(args []string) error {
-	if len(args) != 1 {
+	if !inputStdin && len(args) != 1 {
 		return fmt.Errorf("query command requires only 1 argument `query text`")
 	}
 	if outputFormat == "" {

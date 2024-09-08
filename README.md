@@ -1,7 +1,7 @@
 # aictl
 
 > [!CAUTION]
-> Still in progress, it does not work yet. Please wait
+> Development still in progress, it works partially
 
 Handy CLI accessing generative AI.
 
@@ -23,13 +23,23 @@ AICTL_OPENAI_API_KEY="your openai api key here"
 
 ```bash
 # simple usage
-aictl query "How is the weather today?"
+$ aictl query "How is the weather today?"
+I'm sorry, but I cannot provide real-time weather information. You can check your local weather service or a weather app for the most accurate updates.
 
 # you can pass to stdin with -i option
-echo "How is the weather today?" | aictl query -i
+$ echo "How is the weather today?" | aictl query -i
+I'm sorry, but I cannot provide real-time weather information. You can check your local weather service or a weather app for the most accurate updates.
 
 # you can get result in any format as long as the generative AI response properly
-echo "How is the weather today?" | aictl query -o json -i 
+$ echo "How is the weather today?" | aictl query -o json -i 
+{
+  "error": "Weather information is not available."
+}
+
+# we get response as stdout, aictl's error as stderr so you can pipe
+$ aictl query "Hello" | aictl query -i | aictl query -i
+Hello! How can I assist you today?
+# === TBD ===
 
 # you can pass text files and ask about the file
 aictl query "Why I got error in this Golang file?" -f error_sample.go,error_sample2.go
@@ -38,8 +48,6 @@ aictl query "Why I got error in this Golang file?" -f error_sample.go,error_samp
 aictl query "Why I got error in this Golang file?" -f error_sample.go -l Japanese
 aictl query "Why I got error in this Golang file?" -f error_sample.go -l "日本語"
 
-# we get response as stdout, aictl's error as stderr so you can pipe
-aictl query "Hello!" | aictl query -i | aictl query -i
 ```
 
 ### In CI
