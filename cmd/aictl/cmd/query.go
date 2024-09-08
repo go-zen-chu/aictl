@@ -33,7 +33,7 @@ to quickly create a Cobra application.`,
 		} else {
 			query = args[0]
 		}
-		res, err := uq.QueryToOpenAI(query, outputFormat)
+		res, err := uq.QueryToOpenAI(query, outputFormat, responseLanguage)
 		if err != nil {
 			return fmt.Errorf("query to openai: %w", err)
 		}
@@ -43,12 +43,14 @@ to quickly create a Cobra application.`,
 }
 
 var outputFormat string
+var responseLanguage string
 var inputStdin bool
 
 func init() {
 	rootCmd.AddCommand(queryCmd)
 
 	queryCmd.Flags().StringVarP(&outputFormat, "output", "o", "text", "Output format text or json (default is text)")
+	queryCmd.Flags().StringVarP(&responseLanguage, "language", "l", "English", "Which language you want to get response (default is English)")
 	queryCmd.Flags().BoolVarP(&inputStdin, "stdin", "i", false, "Read query from stdin")
 }
 

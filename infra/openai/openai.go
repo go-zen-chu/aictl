@@ -20,9 +20,11 @@ func NewOpenAIClient(token string) query.OpenAIClient {
 }
 
 var queryTemplate = `%s
-Return your response **ONLY** with valid %s format.`
+The following order must be followed:
+Return your response with valid %s format.
+And return your response with %s language.`
 
-func (c *openaiClient) Ask(ctx context.Context, query string, outputFormat string) (string, error) {
+func (c *openaiClient) Ask(ctx context.Context, query string, outputFormat string, responseLanguage string) (string, error) {
 	resType := goa.ChatCompletionResponseFormatTypeText
 	if outputFormat == "json" {
 		resType = goa.ChatCompletionResponseFormatTypeJSONObject
@@ -32,7 +34,7 @@ func (c *openaiClient) Ask(ctx context.Context, query string, outputFormat strin
 		Messages: []goa.ChatCompletionMessage{
 			{
 				Role:    goa.ChatMessageRoleUser,
-				Content: fmt.Sprintf(queryTemplate, query, outputFormat),
+				Content: fmt.Sprintf(queryTemplate, query, outputFormat, responseLanguage),
 			},
 		},
 		ResponseFormat: &goa.ChatCompletionResponseFormat{

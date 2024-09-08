@@ -39,6 +39,15 @@ $ echo "How is the weather today?" | aictl query -o json -i
 # we get response as stdout, aictl's error as stderr so you can pipe
 $ aictl query "Hello" | aictl query -i | aictl query -i
 Hello! How can I assist you today?
+
+# you can specify which language you want in response
+$ aictl query -ljapanese "Hello"
+こんにちは！いかがお過ごしですか？何かお手伝いできることはありますか？
+
+# you can specify in any language too if double quated
+$ aictl query -l"中文" "Hello"
+你好！请问有什么我可以帮助你的？
+
 # === TBD ===
 
 # you can pass text files and ask about the file
