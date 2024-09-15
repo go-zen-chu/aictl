@@ -37,7 +37,7 @@ func (c *openaiClient) Ask(
 	if err != nil {
 		return "", fmt.Errorf("generate query: %w", err)
 	}
-	slog.Debug("Query to OpenAI: %s", q)
+	slog.Info("Query to OpenAI:", "query", q)
 	// Ask to OpenAI
 	resp, err := c.cli.CreateChatCompletion(ctx, goa.ChatCompletionRequest{
 		Model: goa.GPT4oMini,
@@ -61,34 +61,32 @@ func (c *openaiClient) Ask(
 }
 
 type queryStruct struct {
-	query                string
-	outputFormat         string
-	responseLanguage     string
-	textFiles            []query.InputTextFile
-	codeBlockPlaceholder string
+	Query            string
+	OutputFormat     string
+	ResponseLanguage string
+	TextFiles        []query.InputTextFile
 }
 
 func newQueryStruct(query string, outputFormat string, responseLanguage string, textFiles []query.InputTextFile) *queryStruct {
 	return &queryStruct{
-		query:                query,
-		outputFormat:         outputFormat,
-		responseLanguage:     responseLanguage,
-		textFiles:            textFiles,
-		codeBlockPlaceholder: "```",
+		Query:            query,
+		OutputFormat:     outputFormat,
+		ResponseLanguage: responseLanguage,
+		TextFiles:        textFiles,
 	}
 }
 
-var queryTemplate = `{{.query}}
+var queryTemplate = `{{.Query}}
 
 {{range .TextFiles -}}
-{{.codeBlockPlaceholder}}{{.Extension}}
+` + "```" + `{{.Extension}}
 {{.Content}}
-{{.codeBlockPlaceholder}}
+` + "```" + `
 {{end -}}
 
 The following order must be followed:
-* Return your response with valid {{.outputFormat}} format only.
-* Return your response with {{.outputFormat}} language.`
+* Return your response with valid {{.OutputFormat}} format only.
+* Return your response with {{.ResponseLanguage}} language.`
 
 func (q *queryStruct) generateQuery() (string, error) {
 	tmpl, err := template.New("query").Parse(queryTemplate)

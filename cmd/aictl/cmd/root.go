@@ -50,11 +50,7 @@ to quickly create a Cobra application.`,
 // RootCmdExecute is function for running rootCmd (used for testing)
 func RootCmdExecute() error {
 	if verbose {
-		slog.SetDefault(slog.New(
-			slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-				Level: slog.LevelInfo,
-			})),
-		)
+		slog.SetLogLoggerLevel(slog.LevelDebug)
 	}
 	err := rootCmd.Execute()
 	if err != nil {
@@ -78,6 +74,14 @@ const defaultVerbose = false
 var verbose bool
 
 func init() {
+	// set logger to output to stderr because stdout is used for Generative AI response
+	slog.SetDefault(
+		slog.New(
+			slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+				Level: slog.LevelInfo,
+			}),
+		),
+	)
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
@@ -86,5 +90,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", defaultVerbose, "verbose output (log level debug)")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", defaultVerbose, "verbose output (log level debug)")
 }
