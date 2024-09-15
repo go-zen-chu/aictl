@@ -33,7 +33,7 @@ to quickly create a Cobra application.`,
 		} else {
 			query = args[0]
 		}
-		res, err := uq.QueryToOpenAI(query, outputFormat, responseLanguage)
+		res, err := uq.QueryToOpenAI(query, outputFormat, responseLanguage, filePaths)
 		if err != nil {
 			return fmt.Errorf("query to openai: %w", err)
 		}
@@ -45,13 +45,19 @@ to quickly create a Cobra application.`,
 var outputFormat string
 var responseLanguage string
 var inputStdin bool
+var filePaths []string
+
+const defaultOutputFormat = "text"
+const defaultResponseLanguage = "English"
+const defaultInputStdin = false
 
 func init() {
 	rootCmd.AddCommand(queryCmd)
 
-	queryCmd.Flags().StringVarP(&outputFormat, "output", "o", "text", "Output format text or json (default is text)")
-	queryCmd.Flags().StringVarP(&responseLanguage, "language", "l", "English", "Which language you want to get response (default is English)")
-	queryCmd.Flags().BoolVarP(&inputStdin, "stdin", "i", false, "Read query from stdin")
+	queryCmd.Flags().StringVarP(&outputFormat, "output", "o", defaultOutputFormat, "Output format text or json (default is text)")
+	queryCmd.Flags().StringVarP(&responseLanguage, "language", "l", defaultResponseLanguage, "Which language you want to get response (default is English)")
+	queryCmd.Flags().BoolVarP(&inputStdin, "stdin", "i", defaultInputStdin, "Read query from stdin")
+	queryCmd.Flags().StringArrayVarP(&filePaths, "text-files", "t", []string{}, "Text files added to query")
 }
 
 func validate(args []string) error {

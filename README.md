@@ -40,6 +40,11 @@ $ echo "How is the weather today?" | aictl query -o json -i
 $ aictl query "Hello" | aictl query -i | aictl query -i
 Hello! How can I assist you today?
 
+# to see how AI responding
+$ echo $(./aictl query "Hello") | tee /dev/stderr | ./aictl query -i
+Hello! How can I assist you today?
+Hello! I'm here to assist you. How can I help you today?
+
 # you can specify which language you want in response
 $ aictl query -ljapanese "Hello"
 こんにちは！いかがお過ごしですか？何かお手伝いできることはありますか？

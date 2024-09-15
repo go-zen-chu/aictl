@@ -22,6 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -48,18 +49,33 @@ to quickly create a Cobra application.`,
 
 // RootCmdExecute is function for running rootCmd (used for testing)
 func RootCmdExecute() error {
-	return rootCmd.Execute()
+	if verbose {
+		slog.SetDefault(slog.New(
+			slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+				Level: slog.LevelInfo,
+			})),
+		)
+	}
+	err := rootCmd.Execute()
+	if err != nil {
+		return fmt.Errorf("root command: %w", err)
+	}
+	return nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmdExecute()
 	if err != nil {
 		slog.Error("root command failed", "error", err)
 		os.Exit(1)
 	}
 }
+
+const defaultVerbose = false
+
+var verbose bool
 
 func init() {
 	// Here you will define your flags and configuration settings.
@@ -70,5 +86,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", defaultVerbose, "verbose output (log level debug)")
 }
