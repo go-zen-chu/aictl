@@ -44,17 +44,26 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	// Run: func(cmd *cobra.Command, args []string) {},
 }
 
 // RootCmdExecute is function for running rootCmd (used for testing)
 func RootCmdExecute() error {
-	if verbose {
-		slog.SetLogLoggerLevel(slog.LevelDebug)
-	}
 	err := rootCmd.Execute()
 	if err != nil {
 		return fmt.Errorf("root command: %w", err)
+	}
+	if verbose {
+		slog.Info("verbose output enabled")
+		slog.SetDefault(
+			slog.New(
+				slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+					Level: slog.LevelDebug,
+				}),
+			),
+		)
+		slog.Debug("verbose debug output enabled")
+		slog.Info("verbose info output enabled")
 	}
 	return nil
 }
@@ -63,6 +72,7 @@ func RootCmdExecute() error {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := RootCmdExecute()
+
 	if err != nil {
 		slog.Error("root command failed", "error", err)
 		os.Exit(1)

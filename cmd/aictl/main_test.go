@@ -9,28 +9,28 @@ import (
 )
 
 func TestHelloWorld(t *testing.T) {
-	envs := os.Environ()
-	args := os.Args
+	originalEnvs := os.Environ()
+	originalArgs := os.Args
 	defer func() {
-		for _, env := range envs {
+		for _, env := range originalEnvs {
 			kv := strings.SplitN(env, "=", 2)
 			if err := os.Setenv(kv[0], kv[1]); err != nil {
 				t.Errorf("revert original env: %v", err)
 			}
 		}
-		os.Args = args
+		os.Args = originalArgs
 	}()
 
 	tests := []struct {
-		name    string
-		envs    map[string]string
-		args    []string
-		wantErr error
+		name       string
+		envs       map[string]string
+		args       []string
+		wantErrMsg string
 	}{
 		{
-			name:    "test hello world",
-			args:    []string{"aictl", "query", "hello"},
-			wantErr: nil,
+			name:       "test hello world",
+			args:       []string{"aictl", "query", "hello"},
+			wantErrMsg: "AICTL_OPENAI_API_KEY is not set",
 		},
 	}
 	for _, tt := range tests {
@@ -41,8 +41,8 @@ func TestHelloWorld(t *testing.T) {
 				}
 			}
 			os.Args = tt.args
-			if got := cmd.RootCmdExecute(); got != tt.wantErr {
-				t.Errorf("HelloWorld() = %v, want %v", got, tt.wantErr)
+			if err := cmd.RootCmdExecute(); err.Error() != tt.wantErrMsg {
+				t.Errorf("got error message = %v, want %v", err.Error(), tt.wantErrMsg)
 			}
 		})
 	}
