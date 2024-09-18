@@ -18,7 +18,7 @@ AICTL_OPENAI_API_KEY="your openai api key here"
 
 ### In terminal
 
-```bash
+```
 # simple usage
 $ aictl query "How is the weather today?"
 I'm sorry, but I cannot provide real-time weather information. You can check your local weather service or a weather app for the most accurate updates.
