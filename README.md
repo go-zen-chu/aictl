@@ -1,8 +1,5 @@
 # aictl
 
-> [!CAUTION]
-> Development still in progress, it works partially
-
 Handy CLI accessing generative AI.
 
 [![Documentation](https://pkg.go.dev/badge/github.com/go-zen-chu/golang-template)](http:///pkg.go.dev/github.com/go-zen-chu/golang-template)
@@ -53,15 +50,12 @@ $ aictl query -ljapanese "Hello"
 $ aictl query -l"中文" "Hello"
 你好！请问有什么我可以帮助你的？
 
-# === TBD ===
-
 # you can pass text files and ask about the file
-aictl query "Why I got error in this Golang file?" -f error_sample.go,error_sample2.go
+$ aictl query "Why I got error in this Golang file?" -t ./testdata/go_error_sample1.go,./testdata/go_error_sample2.go
+In your first Golang file, the error arises because the `fmt.Printf` function is called without providing the necessary arguments...
 
-# you can get your result in any language (default is English)
-aictl query "Why I got error in this Golang file?" -f error_sample.go -l Japanese
-aictl query "Why I got error in this Golang file?" -f error_sample.go -l "日本語"
-
+# you can get a result in any language (default is English)
+$ aictl query "Why I got error in this Golang file?" -t ./testdata/go_error_sample1.go -l Japanese
 ```
 
 ### In CI
@@ -69,6 +63,8 @@ aictl query "Why I got error in this Golang file?" -f error_sample.go -l "日本
 You can use aictl in any CI, but we show an example for GitHub Actions.
 
 ```bash
+# TBD
+
 jobs:
   check-aictl:
     runs-on: ubuntu-latest
