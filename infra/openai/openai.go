@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 package openai
 
 import (
@@ -12,13 +13,17 @@ import (
 	goa "github.com/sashabaranov/go-openai"
 )
 
-type openaiClient struct {
-	cli *goa.Client
+type GoOpenAIClient interface {
+	CreateChatCompletion(ctx context.Context, req goa.ChatCompletionRequest) (goa.ChatCompletionResponse, error)
 }
 
-func NewOpenAIClient(token string) query.OpenAIClient {
+type openaiClient struct {
+	cli GoOpenAIClient
+}
+
+func NewOpenAIClient(cli GoOpenAIClient) query.OpenAIClient {
 	return &openaiClient{
-		cli: goa.NewClient(token),
+		cli: cli,
 	}
 }
 
@@ -37,7 +42,7 @@ func (c *openaiClient) Ask(
 	if err != nil {
 		return "", fmt.Errorf("generate query: %w", err)
 	}
-	slog.Info("Query to OpenAI:", "query", q)
+	slog.Debug("Query to OpenAI:", "query", q)
 	// Ask to OpenAI
 	resp, err := c.cli.CreateChatCompletion(ctx, goa.ChatCompletionRequest{
 		Model: goa.GPT4oMini,
