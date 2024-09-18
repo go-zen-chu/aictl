@@ -1,35 +1,15 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
+//go:generate mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 package cmd
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 
-	"github.com/go-zen-chu/aictl/internal/di"
+	"github.com/go-zen-chu/aictl/usecase/query"
 	"github.com/spf13/cobra"
 )
 
+<<<<<<< HEAD
 var dic = di.NewContainer()
 
 // rootCmd represents the base command when called without any subcommands
@@ -78,27 +58,48 @@ func Execute() {
 		os.Exit(1)
 	}
 }
+=======
+type CommandRequirements interface {
+	UsecaseQuery() query.UsecaseQuery
+}
 
-const defaultVerbose = false
+func NewRootCmd(cmdReq CommandRequirements) *cobra.Command {
+	const defaultVerbose = false
+	var verbose bool
 
-var verbose bool
+	// rootCmd represents the base command when called without any subcommands
+	rootCmd := &cobra.Command{
+		Use:   "aictl",
+		Short: "A handy cli sending query to generative AI",
+		Long: `A longer description that spans multiple lines and likely contains
+	examples and usage of using your application. For example:
+>>>>>>> aa56a93d30736b170f3361ac1d3f4765b9754d94
 
-func init() {
-	// set logger to output to stderr because stdout is used for Generative AI response
-	slog.SetDefault(
-		slog.New(
-			slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+	Cobra is a CLI library for Go that empowers applications.
+	This application is a tool to generate the needed files
+	to quickly create a Cobra application.`,
+		// Uncomment the following line if your bare application
+		// has an action associated with it:
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			// set logger to output to stderr because stdout is used for Generative AI response
+			logHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 				Level: slog.LevelInfo,
-			}),
-		),
+			})
+			if verbose {
+				logHandler = slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+					Level: slog.LevelDebug,
+				})
+			}
+			slog.SetDefault(slog.New(logHandler))
+			slog.Debug("verbose debug log enabled")
+		},
+	}
+	rootCmd.PersistentFlags().BoolVarP(
+		&verbose,
+		"verbose", "v",
+		defaultVerbose,
+		"verbose output (log level debug)",
 	)
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.aictl.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", defaultVerbose, "verbose output (log level debug)")
+	rootCmd.AddCommand(NewQueryCmd(cmdReq))
+	return rootCmd
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/go-zen-chu/aictl/infra/git"
 	"github.com/go-zen-chu/aictl/infra/openai"
 	"github.com/go-zen-chu/aictl/usecase/query"
+	goa "github.com/sashabaranov/go-openai"
 )
 
 type Container struct {
@@ -46,11 +47,11 @@ func (c *Container) UsecaseQuery() query.UsecaseQuery {
 
 func (c *Container) OpenAIClient() query.OpenAIClient {
 	return initOnce(c, "OpenAIClient", func() (query.OpenAIClient, error) {
-		k := os.Getenv("AICTL_OPENAI_API_KEY")
-		if k == "" {
+		authToken := os.Getenv("AICTL_OPENAI_API_KEY")
+		if authToken == "" {
 			return nil, fmt.Errorf("AICTL_OPENAI_API_KEY is not set")
 		}
-		return openai.NewOpenAIClient(k), nil
+		return openai.NewOpenAIClient(goa.NewClient(authToken)), nil
 	})
 }
 
