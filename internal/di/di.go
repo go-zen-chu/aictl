@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/go-zen-chu/aictl/infra/git"
 	"github.com/go-zen-chu/aictl/infra/openai"
 	"github.com/go-zen-chu/aictl/usecase/query"
 	goa "github.com/sashabaranov/go-openai"
@@ -52,19 +51,5 @@ func (c *Container) OpenAIClient() query.OpenAIClient {
 			return nil, fmt.Errorf("AICTL_OPENAI_API_KEY is not set")
 		}
 		return openai.NewOpenAIClient(goa.NewClient(authToken)), nil
-	})
-}
-
-func (c *Container) GitHandler() git.GitHandler {
-	return initOnce(c, "GitHandler", func() (git.GitHandler, error) {
-		curAbsPath, err := os.Getwd()
-		if err != nil {
-			return nil, fmt.Errorf("get current working directory: %w", err)
-		}
-		gh, err := git.NewGitHandler(curAbsPath)
-		if err != nil {
-			return nil, fmt.Errorf("new git handler: %w", err)
-		}
-		return gh, nil
 	})
 }

@@ -43,6 +43,7 @@ func (c *openaiClient) Ask(
 		return "", fmt.Errorf("generate query: %w", err)
 	}
 	slog.Debug("Query to OpenAI:", "query", q)
+
 	// Ask to OpenAI
 	resp, err := c.cli.CreateChatCompletion(ctx, goa.ChatCompletionRequest{
 		Model: goa.GPT4oMini,
@@ -84,13 +85,12 @@ func newQueryStruct(query string, outputFormat string, responseLanguage string, 
 var queryTemplate = `{{.Query}}
 
 {{range .TextFiles -}}
-` + "```" + `{{.Extension}}
+` + "```" + `{{.Extension}} filepath={{.FilePath}}
 {{.Content}}
 ` + "```" + `
 {{end -}}
 
 The following order must be followed:
-* Return your response with valid {{.OutputFormat}} format only.
 * Return your response with {{.ResponseLanguage}} language.`
 
 func (q *queryStruct) generateQuery() (string, error) {
