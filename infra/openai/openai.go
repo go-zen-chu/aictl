@@ -85,7 +85,7 @@ func newQueryStruct(query string, outputFormat string, responseLanguage string, 
 var queryTemplate = `{{.Query}}
 
 {{range .TextFiles -}}
-` + "```" + `{{.Extension}}
+` + "```" + `{{.Extension}} filepath={{.FilePath}}
 {{.Content}}
 ` + "```" + `
 {{end -}}
