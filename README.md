@@ -70,13 +70,18 @@ $ aictl query -l"中文" "Hello"
 $ aictl query "Why I got error in this Golang file?" -t ./testdata/go_error_sample1.go,./testdata/go_error_sample2.go
 In your first Golang file, the error arises because the `fmt.Printf` function is called without providing the necessary arguments...
 
-# By handling a result of `git diff`, you can do a code review for that
+# By giving a files list of `git diff`, you can do a code review for changed files
 $ aictl query -t "$(git diff --name-only HEAD origin/main | tr '\n' ',' | sed 's/,$/\n/')" "Could you give me a code review for each files with filename?"
 Here's a code review for each file you've provided. The review will focus on structure, style, best practices, potential improvements, and any other relevant aspects.
 ---
 ### File: `README.md`
 #### Review
 1. **Structure**: The README has a clear structure that helps users understand what the project is about, how to authenticate, usage in the terminal, and usage in CI.
+
+# If you want to review only diffs of the files, give a diff text
+$ aictl query "Could you give me a code review for the diff below? \
+These diffs are the result of \`git diff --no-ext-diff\` command. \
+$(git diff --no-ext-diff)"
 ```
 
 ### In CI
