@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"unicode/utf8"
@@ -42,21 +43,23 @@ func (uq *usecaseQuery) QueryToOpenAI(
 	textFiles := make([]InputTextFile, 0, len(filePaths))
 	if len(filePaths) > 0 {
 		for _, fp := range filePaths {
-			if _, err := os.Stat(fp); os.IsNotExist(err) {
-				return "", fmt.Errorf("file does not exist: %s", fp)
+			if _, err := os.Stat(fp); err != nil {
+				if os.IsNotExist(err) {
+					slog.Warn("[ignore] check if this file exists", "filepath", fp, "error", err)
+					continue
+				}
+				return "", fmt.Errorf("stat file: %w", err)
 			}
 			isText, err := isTextFile(fp)
 			if err != nil {
-				return "", fmt.Errorf("check if file is text file: %w", err)
+				return "", fmt.Errorf("checking if file %s is text: %w", fp, err)
 			}
 			if !isText {
-				return "", fmt.Errorf("file is not a text file: %s", fp)
+				slog.Warn("[ignore] file is not a text file", "filepath", fp, "error", err)
+				continue
 			}
-			// will get like .c, .go, .txt, ...
+			// will get an extension like .c, .go, .txt, ..., and empty string if no extension
 			ext := filepath.Ext(fp)
-			if ext == "" {
-				return "", fmt.Errorf("file has no extension: %s", fp)
-			}
 			if ext[0] == '.' {
 				ext = ext[1:]
 			}
