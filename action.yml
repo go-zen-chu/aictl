@@ -1,0 +1,34 @@
+name: "aictl"
+author: "Akira Masuda (go-zen-chu)"
+description: "Handy tool for asking questions and reviews to AI"
+inputs:
+  # required
+  github-token:
+    description: "GitHub token to read/write issue & repository"
+    required: true
+  issue-url:
+    description: "GitHub issue URL"
+    required: true
+  export-dir:
+    description: "A directory in your repository to export markdown. Default is `.` (repository root)"
+    required: false
+    default: "."
+  # optional
+  debug:
+    description: "Run issue2md with debug mode"
+    default: "false"
+  check-dups:
+    description: "Find duplicate issueURL markdowns exists"
+    default: "false"
+runs:
+  using: "docker"
+  image: "docker://amasuda/aictl:latest"
+  args:
+    - -github-token=${{ inputs.github-token }}
+    - -issue-url=${{ inputs.issue-url }}
+    - -export-dir=${{ inputs.export-dir }}
+    - -debug=${{ inputs.debug }}
+    - -check-dups=${{ inputs.check-dups }}
+branding:
+  icon: "cloud"
+  color: "blue"
