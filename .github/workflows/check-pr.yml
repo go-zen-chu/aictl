@@ -10,8 +10,6 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: Fetch base branch
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
       - name: Get the diff between PR and target
@@ -23,7 +21,8 @@ jobs:
           ls -al ..
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-      - uses: ./action.yml
+      # specify dir where action.yml exists
+      - uses: ./
         with:
           query: "Could you give me a code review for each files with filename?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
