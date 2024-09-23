@@ -1,34 +1,33 @@
-name: "aictl"
+name: "aictl-query"
 author: "Akira Masuda (go-zen-chu)"
 description: "Handy tool for asking questions and reviews to AI"
 inputs:
   # required
-  github-token:
-    description: "GitHub token to read/write issue & repository"
+  query:
+    description: "Query to ask AI. You can ask anything"
     required: true
-  issue-url:
-    description: "GitHub issue URL"
-    required: true
-  export-dir:
-    description: "A directory in your repository to export markdown. Default is `.` (repository root)"
-    required: false
-    default: "."
   # optional
-  debug:
-    description: "Run issue2md with debug mode"
-    default: "false"
-  check-dups:
-    description: "Find duplicate issueURL markdowns exists"
+  language:
+    description: "Which language you want to get response (default is English)"
+    default: "English"
+  output:
+    description: "Output format (default is JSON)"
+    default: "text"
+  text-files:
+    description: "An array of text files added to query seperated with comma (e.g. file1.go,file2.txt)"
+  verbose:
+    description: "Verbose log"
     default: "false"
 runs:
   using: "docker"
   image: "docker://amasuda/aictl:latest"
   args:
-    - -github-token=${{ inputs.github-token }}
-    - -issue-url=${{ inputs.issue-url }}
-    - -export-dir=${{ inputs.export-dir }}
-    - -debug=${{ inputs.debug }}
-    - -check-dups=${{ inputs.check-dups }}
+    - --verbose=${{ inputs.verbose }}
+    - query
+    - --language=${{ inputs.language }}
+    - --output=${{ inputs.output }}
+    - --text-files=${{ inputs.text-files }}
+    - ${{ inputs.query }}
 branding:
   icon: "cloud"
   color: "blue"

@@ -2,9 +2,10 @@
 
 Handy CLI accessing generative AI.
 
-[![Documentation](https://pkg.go.dev/badge/github.com/go-zen-chu/golang-template)](http://pkg.go.dev/github.com/go-zen-chu/golang-template)
-[![Actions Status](https://github.com/go-zen-chu/golang-template/workflows/ci/badge.svg)](https://github.com/go-zen-chu/golang-template/actions)
-[![GitHub issues](https://img.shields.io/github/issues/go-zen-chu/golang-template.svg)](https://github.com/go-zen-chu/golang-template/issues)
+[![Documentation](https://pkg.go.dev/badge/github.com/go-zen-chu/aictl)](http://pkg.go.dev/github.com/go-zen-chu/aictl)
+[![Docker Image Version](https://img.shields.io/docker/v/amasuda/aictl)](https://hub.docker.com/repository/docker/amasuda/aictl/general)
+[![Actions Status](https://github.com/go-zen-chu/aictl/workflows/ci/badge.svg)](https://github.com/go-zen-chu/aictl/actions)
+[![GitHub issues](https://img.shields.io/github/issues/go-zen-chu/aictl.svg)](https://github.com/go-zen-chu/aictl/issues)
 
 ## Usage
 
@@ -86,7 +87,9 @@ $(git diff --no-ext-diff)"
 
 ### In CI
 
-You can use aictl in any CI, but we show an example for GitHub Actions.
+You can use aictl in any CI using docker image.
+
+We prepareshow an example for GitHub Actions.
 
 ```yaml
 jobs:
@@ -98,17 +101,16 @@ jobs:
     - name: Fetch base branch
       run: git fetch origin ${{ github.event.pull_request.base.ref }}
     # Example 1, simple query
-    - uses: go-zen-chu/aictl@main
-      run: query "How are you?"
+    - uses: go-zen-chu/aictl-query@main
+      with:
+        query: "Hello! GitHub Action"
     # Example 2, a query with multiline
     - uses: go-zen-chu/aictl@main
-      run: |
-        query " \
-        Let me ask a question. \
-        Why I got error in this Golang file? \
-        "
+      with:
+        query: |
+          Let me ask a question.
+          Why I got error in this Golang file?
     # Example 3, specifing an output format
-    - uses: go-zen-chu/aictl@main
-      run: query -o json "How are you?"
-    # Example 4, specifing an output format
+    - uses: go-zen-chu/aictl-query@main
+      run: 
 ```

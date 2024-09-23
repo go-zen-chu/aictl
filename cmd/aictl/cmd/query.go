@@ -91,7 +91,7 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 	queryCmd.Flags().StringSliceVarP(&textFilePaths,
 		"text-files", "t",
 		defaultTextFilePaths,
-		"Text files added to query",
+		"An array of text files added to query seperated with comma (e.g. file1.go,file2.txt)",
 	)
 	return queryCmd
 }
