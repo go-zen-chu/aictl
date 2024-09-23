@@ -1,0 +1,26 @@
+name: check-pr
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+jobs:
+  check-aictl:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}
+      - name: Get the diff between PR and target
+        id: git-diff
+        run: |
+          diff_files=$(git diff --name-only HEAD origin/${{ github.event.pull_request.base.ref }} | tr "\n" ",")
+          echo "diff_files: ${diff_files}"
+          echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
+      - uses: go-zen-chu/aictl-query@main
+        with:
+          query: "Could you give me a code review for each files with filename?"
+          text-files: ${{ steps.git-diff.outputs.diff-files }}
+        env:
+          AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
