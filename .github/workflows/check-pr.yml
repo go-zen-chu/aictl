@@ -17,6 +17,7 @@ jobs:
         run: |
           set -x
           git remote -v
+          git log --graph --color --oneline
           git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }}
           diff_files=$(git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }} | tr '\n' ',' | sed 's/,$/\n/')
           echo "diff_files: ${diff_files}"
