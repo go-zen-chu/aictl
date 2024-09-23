@@ -69,7 +69,9 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 				return fmt.Errorf("query to openai: %w", err)
 			}
 
-			printResult(res)
+			if err := printResult(res); err != nil {
+				return fmt.Errorf("print result: %w", err)
+			}
 			return nil
 		},
 	}
