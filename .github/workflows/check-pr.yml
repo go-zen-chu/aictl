@@ -41,9 +41,8 @@ jobs:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
       - name: Post aictl review result to PR comment
         run: |
-          echo "$GITHUB_OUTPUT"
-          echo "$GITHUB_CONTEXT"
-          env | grep -v -e "token" -e "TOKEN" -e "secret" -e "SECRET"
+          env | sort | grep -v -e "token" -e "TOKEN" -e "secret" -e "SECRET"
+          cat $GITHUB_OUTPUT
           echo "aictl-review: ${{ steps.aictl-review.outputs.response }}"
           gh pr comment --body ${{steps.aictl-review.outputs.response}} "${URL}"
         env:
