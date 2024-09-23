@@ -18,9 +18,10 @@ jobs:
           diff_files=$(git diff --name-only HEAD origin/${{ github.event.pull_request.base.ref }} | tr "\n" ",")
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-      - uses: go-zen-chu/aictl-query@main
+      - uses: ./action.yml
         with:
           query: "Could you give me a code review for each files with filename?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
+          verbose: "true"
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
