@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Fetch base branch
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
       - name: Get the diff between PR and target
