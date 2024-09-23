@@ -24,6 +24,9 @@ func splitCmd(cmd string) []string {
 }
 
 func runCmd(cmd string, preRunCmd func(cmd string)) (string, error) {
+	if cmd == "" {
+		return "", fmt.Errorf("command string is empty")
+	}
 	cmdSplit := splitCmd(cmd)
 	c := exec.Command(cmdSplit[0], cmdSplit[1:]...)
 	if preRunCmd != nil {
@@ -54,7 +57,7 @@ func RunCmdWithLog(cmd string) error {
 	if out == "" {
 		out = "[command result was empty string]"
 	}
-	slog.Info(out)
+	slog.Info(out, "len", len(out))
 	return nil
 }
 
