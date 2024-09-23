@@ -8,33 +8,41 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Git checkout
+      - name: Get number of commit to of pr commits for checkout
+        run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
+        env:
+          commits: ${{ github.event.pull_request.commits }}
+      - name: Git checkout until fetch-depth
         uses: actions/checkout@v4
-      # - name: Set up Golang
-      #   uses: actions/setup-go@v5
-      #   with:
-      #     go-version: 1.23
-      # # check the basic code quality
-      # - name: Run golangci-lint
-      #   uses: golangci/golangci-lint-action@v6
-      # - name: Test code
-      #   run: go test -v ./...
-      # check the content of the PR
-      - name: Fetch base branch
+        with:
+          fetch-depth: ${{ env.fetch_depth }}
+          # need to specify ref to fetch PR head, otherwise you get main branch with no HEAD
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Fetch base branch as origin
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
-      - name: Get the diff between PR and target
+      - name: Get the diff between PR and origin branch
         id: git-diff
         run: |
-          diff_files=$(git diff --name-only HEAD origin/${{ github.event.pull_request.base.ref }} | tr "\n" ",")
+          git branch -a
+          # if fetch-depth was not specified in checkout, HEAD cannot be found
+          git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }}
+          diff_files=$(git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }} | tr '\n' ',' | sed 's/,$/\n/')
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-      # specify dir where action.yml exists
-      - uses: ./
+      # review the content of the diff
+      - name: Run aictl review
+        id: aictl-review
+        uses: ./ # specify dir where action.yml exists
         if: steps.git-diff.outputs.diff-files != ''
         with:
-          query: "Could you give me a code review for each files with filename?"
+          query: "Could you give me a code review for each files with filename in markdown format?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
-          verbose: "true"
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
-#
+      - run: |
+          echo "aictl-review: ${{ steps.aictl-review.outputs }}"
+          echo "aictl-review: ${{ steps.aictl-review.outputs.* }}"
+          gh pr comment --body ${{steps.aictl-review.outputs}} "${URL}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ github.event.pull_request.html_url }}
