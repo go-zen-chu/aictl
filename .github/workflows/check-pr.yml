@@ -29,9 +29,15 @@ jobs:
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
       - uses: ./action.yml
+        if: steps.git-diff.outputs.diff-files != ''
         with:
           query: "Could you give me a code review for each files with filename?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
           verbose: "true"
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
+      - if: ${{ failure() }}
+        run: gh pr comment --body-file ./.textlint.log "${URL}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ github.event.pull_request.html_url }}
