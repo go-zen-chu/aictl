@@ -39,7 +39,8 @@ jobs:
           text-files: ${{ steps.git-diff.outputs.diff-files }}
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
-      - run: |
+      - name: Post aictl review result to PR comment
+        run: |
           echo "aictl-review: ${{ steps.aictl-review.outputs.response }}"
           gh pr comment --body ${{steps.aictl-review.outputs.response}} "${URL}"
         env:
