@@ -15,6 +15,7 @@ jobs:
       - name: Get the diff between PR and target
         id: git-diff
         run: |
+          git remote -v
           git diff --name-only HEAD origin/${{ github.event.pull_request.base.ref }}
           diff_files=$(git diff --name-only HEAD origin/${{ github.event.pull_request.base.ref }}　| tr '\n' ',' | sed 's/,$/\n/')
           echo "diff_files: ${diff_files}"
