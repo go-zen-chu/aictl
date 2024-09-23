@@ -1,8 +1,11 @@
 package mage
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log/slog"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -53,6 +56,26 @@ func RunCmdWithLog(cmd string) error {
 	}
 	slog.Info(out)
 	return nil
+}
+
+func RunLongRunningCmd(cmd string) (string, string, error) {
+	cmdSplit := splitCmd(cmd)
+	c := exec.Command(cmdSplit[0], cmdSplit[1:]...)
+	cmdStdoutBuffer := bytes.NewBufferString("")
+	cmdStderrBuffer := bytes.NewBufferString("")
+	// write to both stdout and string buffer
+	cmdStdoutMultiWriter := io.MultiWriter(os.Stdout, cmdStdoutBuffer)
+	// write to both stderr and string buffer
+	cmdStderrMultiWriter := io.MultiWriter(os.Stderr, cmdStderrBuffer)
+	slog.Info("Running long running command", "cmd", c.String())
+	c.Stdout = cmdStdoutMultiWriter
+	c.Stderr = cmdStderrMultiWriter
+	err := c.Run()
+	if err != nil {
+		return cmdStdoutBuffer.String(), cmdStderrBuffer.String(), fmt.Errorf("run command: %w", err)
+	}
+	// return both results with string
+	return cmdStdoutBuffer.String(), cmdStderrBuffer.String(), nil
 }
 
 func getGitCommitShortHash() (string, error) {

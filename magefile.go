@@ -39,9 +39,10 @@ func KoPublish() error {
 	if err != nil {
 		return fmt.Errorf("error generating image tag: %w", err)
 	}
-	err = mage.RunCmdWithLog(fmt.Sprintf("ko build --bare --tags %s ./cmd/aictl", imageTag))
+	// TIPS: ko build would add `-<md5>`` to image name without --base-import-paths flag
+	out, errMsg, err := mage.RunLongRunningCmd(fmt.Sprintf("ko build --base-import-paths --tags %s ./cmd/aictl", imageTag))
 	if err != nil {
-		return fmt.Errorf("building image with ko: %w", err)
+		return fmt.Errorf("building image with ko: %w, stdout log: %s, stderr log: %s", err, out, errMsg)
 	}
 	return nil
 }
