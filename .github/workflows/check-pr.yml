@@ -22,6 +22,8 @@ jobs:
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
       # specify dir where action.yml exists
       - uses: ./
+        # run only when diff exists
+        if: steps.git-diff.outputs.diff-files != ''
         with:
           query: "Could you give me a code review for each files with filename?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
