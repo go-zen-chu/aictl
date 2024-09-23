@@ -37,4 +37,3 @@ jobs:
           verbose: "true"
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
-#
