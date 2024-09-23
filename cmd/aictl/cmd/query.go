@@ -98,11 +98,11 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 
 func printResult(res string) error {
 	if githubAction := os.Getenv("GITHUB_ACTIONS"); githubAction != "" && githubAction == "true" {
-		outputFile := os.Getenv("GITHUB_OUTPUT")
-		if outputFile == "" {
+		ghOutputFile := os.Getenv("GITHUB_OUTPUT")
+		if ghOutputFile == "" {
 			return fmt.Errorf("GITHUB_OUTPUT environment variable is not set")
 		}
-		f, err := os.OpenFile(outputFile, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		f, err := os.OpenFile(ghOutputFile, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			return fmt.Errorf("open GITHUB_OUTPUT env var file: %w", err)
 		}
