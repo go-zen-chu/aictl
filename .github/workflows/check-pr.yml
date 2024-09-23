@@ -28,7 +28,8 @@ jobs:
           diff_files=$(git diff --name-only HEAD origin/${{ github.event.pull_request.base.ref }} | tr "\n" ",")
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-      - uses: ./action.yml
+      # specify dir where action.yml exists
+      - uses: ./
         if: steps.git-diff.outputs.diff-files != ''
         with:
           query: "Could you give me a code review for each files with filename?"
