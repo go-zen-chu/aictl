@@ -8,8 +8,14 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      # checkout depth until number of pr commits
+      - run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
+        env:
+          commits: ${{ github.event.pull_request.commits }}
       - name: Git checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ env.fetch_depth }}
       - name: Fetch base branch
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
       - name: Get the diff between PR and target
@@ -17,7 +23,7 @@ jobs:
         run: |
           set -x
           git remote -v
-          git log --graph --color --oneline
+          # if fetch-depth was not specified in checkout, HEAD cannot be found
           git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }}
           diff_files=$(git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }} | tr '\n' ',' | sed 's/,$/\n/')
           echo "diff_files: ${diff_files}"
