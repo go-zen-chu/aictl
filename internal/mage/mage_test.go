@@ -79,7 +79,6 @@ func TestRunCmdWithLog(t *testing.T) {
 	}
 }
 
-// TODO
 func TestRunLongRunningCmd(t *testing.T) {
 	type args struct {
 		cmd string
