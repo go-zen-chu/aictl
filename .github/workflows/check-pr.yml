@@ -8,7 +8,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Get number of commit to of pr commits for checkout
+      - name: Get number of commits for fetch depth
         run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
         env:
           commits: ${{ github.event.pull_request.commits }}
