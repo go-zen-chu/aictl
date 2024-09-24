@@ -43,6 +43,8 @@ jobs:
         run: |
           env | sort | grep -v -e "token" -e "TOKEN" -e "secret" -e "SECRET"
           cat $GITHUB_OUTPUT
+          # make sure to checkout to pr branch and resolve detached HEAD state
+          git checkout ${{ github.ref_name }}
           echo "aictl-review: ${{ steps.aictl-review.outputs.response }}"
           gh pr comment --body ${{steps.aictl-review.outputs.response}} "${URL}"
         env:
