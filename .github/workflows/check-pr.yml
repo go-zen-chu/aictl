@@ -47,8 +47,12 @@ jobs:
       # fetch_depth=10
       - name: Post aictl review result to PR comment
         run: |
+          env | sort | grep -v -e "token" -e "TOKEN" -e "secret" -e "SECRET"
+          cat $GITHUB_OUTPUT
+          # make sure to checkout to pr branch and resolve detached HEAD state
+          git checkout ${{ github.ref_name }}
           echo "aictl-review: ${{ steps.aictl-review.outputs.response }}"
-          gh pr comment --body ${{ steps.aictl-review.outputs.response }} "${URL}"
+          gh pr comment --body ${{steps.aictl-review.outputs.response}} "${URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           URL: ${{ github.event.pull_request.html_url }}
