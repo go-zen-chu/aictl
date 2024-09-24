@@ -39,9 +39,14 @@ jobs:
           text-files: ${{ steps.git-diff.outputs.diff-files }}
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
+
+      # 課題
+      # 1. gh 実行時に branch が迷子
+      # 2. aictl で response に値が入っていない（下記の通り）
+      # _=/usr/bin/env
+      # fetch_depth=10
       - name: Post aictl review result to PR comment
         run: |
-          echo "$GITHUB_CONTEXT"
           echo "aictl-review: ${{ steps.aictl-review.outputs.response }}"
           gh pr comment --body ${{ steps.aictl-review.outputs.response }} "${URL}"
         env:

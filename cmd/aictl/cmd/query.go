@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -100,13 +101,15 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 
 func printResult(res string) error {
 	if githubAction := os.Getenv("GITHUB_ACTIONS"); githubAction != "" && githubAction == "true" {
-		ghOutputFile := os.Getenv("GITHUB_OUTPUT")
-		if ghOutputFile == "" {
+		slog.Info("Running in GitHub Actions detected")
+		// you will get a value like /home/runner/work/_temp/_runner_file_commands/set_output_<guid>
+		ghOutputFilePath := os.Getenv("GITHUB_OUTPUT")
+		if ghOutputFilePath == "" {
 			return fmt.Errorf("GITHUB_OUTPUT environment variable is not set")
 		}
-		f, err := os.OpenFile(ghOutputFile, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		f, err := os.OpenFile(ghOutputFilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
-			return fmt.Errorf("open GITHUB_OUTPUT env var file: %w", err)
+			return fmt.Errorf("open file of GITHUB_OUTPUT: %w", err)
 		}
 		defer f.Close()
 
@@ -116,9 +119,14 @@ func printResult(res string) error {
 			res,
 		)
 		if err != nil {
-			return fmt.Errorf("write response to GITHUB_OUTPUT env var file: %w", err)
+			return fmt.Errorf("write response to file of GITHUB_OUTPUT: %w", err)
 		}
-		fmt.Println("Print output to ${{ steps.<step_id>.outputs.response }}")
+		slog.Debug("Write to GITHUB_OUTPUT file", "filepath", ghOutputFilePath, "content", githubActionOutputsResponse)
+		bt, err := os.ReadFile(ghOutputFilePath)
+		if err != nil {
+			return fmt.Errorf("read github output file: %w", err)
+		}
+		fmt.Printf("Write query output to ${{ steps.<step_id>.outputs.response }}\nfilepath: %s\n%s\n", ghOutputFilePath, string(bt))
 		return nil
 	}
 	// Print the response to **stdout**. All the logs are printed to **stderr**
