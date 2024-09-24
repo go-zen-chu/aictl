@@ -45,10 +45,9 @@ func (uq *usecaseQuery) QueryToOpenAI(
 		for _, fp := range filePaths {
 			if _, err := os.Stat(fp); err != nil {
 				if os.IsNotExist(err) {
-					slog.Warn("File does not exists. Skipping...", "filepath", fp, "error", err)
-					continue
+					return "", fmt.Errorf("filepath %s does not exists: %w", fp, err)
 				}
-				return "", fmt.Errorf("stat file: %w", err)
+				return "", fmt.Errorf("while stat file: %w", err)
 			}
 			isText, err := isTextFile(fp)
 			if err != nil {

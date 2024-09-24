@@ -65,6 +65,7 @@ func TestQueryCmd(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          []string
+		envs          map[string]string
 		beforeEnvVars map[string]string
 		mockCmdReq    func(c *gomock.Controller) cmd.CommandRequirements
 		wantErr       error
@@ -116,8 +117,16 @@ func TestQueryCmd(t *testing.T) {
 		},
 		// Text files
 		{
-			name: "If valid files given, get response from OpenAI",
-			args: []string{"aictl", "query", "-t", "../../testdata/go_error_sample1.go,../../go_error_sample2.go", "Could you review this code?"},
+			name: "If valid text files given, get response from OpenAI",
+			args: []string{"aictl", "query", "-t", "../../testdata/go_error_sample1.go,../../testdata/go_error_sample2.go", "Could you review this code?"},
+			mockCmdReq: func(c *gomock.Controller) cmd.CommandRequirements {
+				return genCommandRequirementsMockWithOpenAIResponse(c, "Sure! This is the result...\n")
+			},
+			wantErr: nil,
+		},
+		{
+			name: "If valid text file with no extension given, get response from OpenAI",
+			args: []string{"aictl", "query", "-t", "../../testdata/InvalidDockerfile", "Could you review this code?"},
 			mockCmdReq: func(c *gomock.Controller) cmd.CommandRequirements {
 				return genCommandRequirementsMockWithOpenAIResponse(c, "Sure! This is the result...\n")
 			},
@@ -126,10 +135,10 @@ func TestQueryCmd(t *testing.T) {
 		{
 			name: "If file path is invalid, get an error",
 			args: []string{"aictl", "query", "-t", "no_such_file", "Could you review this code?"},
-			mockCmdReq: func(c *gomock.Controller) cmd.CommandRequirements {
-				return genCommandRequirementsMockWithOpenAIResponse(c, "Sure! This is the result...\n")
+			envs: map[string]string{
+				"AICTL_OPENAI_API_KEY": "test",
 			},
-			wantErr: nil,
+			wantErr: errors.New("root command: query to openai: filepath no_such_file does not exists: stat no_such_file: no such file or directory"),
 		},
 	}
 	for _, tt := range tests {
@@ -141,6 +150,13 @@ func TestQueryCmd(t *testing.T) {
 				cr = tt.mockCmdReq(c)
 			} else {
 				cr = di.NewContainer()
+			}
+			if tt.envs != nil {
+				for k, v := range tt.envs {
+					if err := os.Setenv(k, v); err != nil {
+						t.Errorf("set env var: %s", err)
+					}
+				}
 			}
 			// run
 			app := &app{
