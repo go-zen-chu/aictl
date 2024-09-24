@@ -114,6 +114,23 @@ func TestQueryCmd(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		// Text files
+		{
+			name: "If valid files given, get response from OpenAI",
+			args: []string{"aictl", "query", "-t", "../../testdata/go_error_sample1.go,../../go_error_sample2.go", "Could you review this code?"},
+			mockCmdReq: func(c *gomock.Controller) cmd.CommandRequirements {
+				return genCommandRequirementsMockWithOpenAIResponse(c, "Sure! This is the result...\n")
+			},
+			wantErr: nil,
+		},
+		{
+			name: "If file path is invalid, get an error",
+			args: []string{"aictl", "query", "-t", "no_such_file", "Could you review this code?"},
+			mockCmdReq: func(c *gomock.Controller) cmd.CommandRequirements {
+				return genCommandRequirementsMockWithOpenAIResponse(c, "Sure! This is the result...\n")
+			},
+			wantErr: nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

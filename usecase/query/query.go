@@ -45,7 +45,7 @@ func (uq *usecaseQuery) QueryToOpenAI(
 		for _, fp := range filePaths {
 			if _, err := os.Stat(fp); err != nil {
 				if os.IsNotExist(err) {
-					slog.Warn("[ignore] check if this file exists", "filepath", fp, "error", err)
+					slog.Warn("File does not exists. Skipping...", "filepath", fp, "error", err)
 					continue
 				}
 				return "", fmt.Errorf("stat file: %w", err)
@@ -55,12 +55,12 @@ func (uq *usecaseQuery) QueryToOpenAI(
 				return "", fmt.Errorf("checking if file %s is text: %w", fp, err)
 			}
 			if !isText {
-				slog.Warn("[ignore] file is not a text file", "filepath", fp, "error", err)
+				slog.Warn("File is not a text file. Skipping...", "filepath", fp, "error", err)
 				continue
 			}
 			// will get an extension like .c, .go, .txt, ..., and empty string if no extension
 			ext := filepath.Ext(fp)
-			if ext[0] == '.' {
+			if len(ext) > 0 && ext[0] == '.' {
 				ext = ext[1:]
 			}
 			textContentBytes, err := os.ReadFile(fp)
