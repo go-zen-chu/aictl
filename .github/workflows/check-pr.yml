@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      contents: write
     steps:
       - name: Get number of commits for fetch depth
         run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV

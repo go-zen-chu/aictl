@@ -107,6 +107,9 @@ func printResult(res string) error {
 		if ghOutputFilePath == "" {
 			return fmt.Errorf("GITHUB_OUTPUT environment variable is not set")
 		}
+		if _, err := os.Stat(ghOutputFilePath); err != nil {
+			return fmt.Errorf("GITHUB_OUTPUT file (%s) does not exist: %w", ghOutputFilePath, err)
+		}
 		f, err := os.OpenFile(ghOutputFilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			return fmt.Errorf("open file of GITHUB_OUTPUT: %w", err)
