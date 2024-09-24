@@ -6,7 +6,6 @@ jobs:
   check-aictl:
     runs-on: ubuntu-latest
     permissions:
-      actions: read
       pull-requests: write
     steps:
       - name: Get number of commits for fetch depth
