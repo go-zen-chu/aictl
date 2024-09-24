@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      actions: read
     steps:
       - name: Get number of commit to of pr commits for checkout
         run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
