@@ -39,7 +39,6 @@ jobs:
         with:
           query: "Could you give me a code review for each files with filename in markdown format?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
-          verbose: "true"
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
       - name: Post aictl review result to PR comment
