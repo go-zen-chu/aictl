@@ -44,7 +44,7 @@ jobs:
           # make sure to checkout to pr branch and resolve detached HEAD state
           git checkout ${{ github.ref_name }}
           echo -n "${{steps.aictl-review.outputs.response}}" > response.md
-          gh pr comment --body ./reposense.md "${URL}"
+          gh pr comment --body-file ./response.md "${URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           URL: ${{ github.event.pull_request.html_url }}
