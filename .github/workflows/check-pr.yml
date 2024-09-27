@@ -23,36 +23,26 @@ jobs:
       - name: Get the diff between PR and origin branch
         id: git-diff
         run: |
-          git branch -a
-          # if fetch-depth was not specified in checkout, HEAD cannot be found
-          git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }}
-          diff_files=$(git diff --name-only HEAD..origin/${{ github.event.pull_request.base.ref }} | tr '\n' ',' | sed 's/,$/\n/')
+          # If fetch-depth is not specified in checkout, HEAD cannot be found
+          # Make sure to filter out deleted file in `git diff` since you cannot review deleted files
+          diff_files=$(git diff --name-only --diff-filter=ACMR HEAD..origin/${{ github.event.pull_request.base.ref }} | tr '\n' ',' | sed 's/,$/\n/')
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-      # review the content of the diff
-      - name: Run aictl review
+      - name: Run aictl for code review
         id: aictl-review
         uses: ./ # specify dir where action.yml exists
-        if: steps.git-diff.outputs.diff-files != ''
+        if: steps.git-diff.outputs.diff-files != '' && !contains(github.event.head_commit.message, '[skip ai]')
         with:
           query: "Could you give me a code review for each files with filename in markdown format?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
-
-      # 課題
-      # 1. gh 実行時に branch が迷子
-      # 2. aictl で response に値が入っていない（下記の通り）
-      # _=/usr/bin/env
-      # fetch_depth=10
       - name: Post aictl review result to PR comment
         run: |
-          env | sort | grep -v -e "token" -e "TOKEN" -e "secret" -e "SECRET"
-          cat $GITHUB_OUTPUT
           # make sure to checkout to pr branch and resolve detached HEAD state
           git checkout ${{ github.ref_name }}
-          echo "aictl-review: ${{ steps.aictl-review.outputs.response }}"
-          gh pr comment --body ${{steps.aictl-review.outputs.response}} "${URL}"
+          echo -n "${{steps.aictl-review.outputs.response}}" > response.md
+          gh pr comment --body-file ./response.md "${URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           URL: ${{ github.event.pull_request.html_url }}

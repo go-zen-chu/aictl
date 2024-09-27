@@ -12,13 +12,17 @@ import (
 	"time"
 )
 
-var cmdSplitRegex = regexp.MustCompile(`[^\s]+`)
+// split those are (not space | start and end with double quote | start and end with single quote)
+var cmdSplitRegex = regexp.MustCompile(`[^\s"']+|"[^"]*"|'[^']*'`)
 
 func splitCmd(cmd string) []string {
 	matches := cmdSplitRegex.FindAllString(cmd, -1)
 	if matches == nil {
 		slog.Error("could not split command", "cmd", cmd)
 		panic("could not split command with white space")
+	}
+	for i, m := range matches {
+		matches[i] = strings.Trim(m, `"'`)
 	}
 	return matches
 }
@@ -57,7 +61,7 @@ func RunCmdWithLog(cmd string) error {
 	if out == "" {
 		out = "[command result was empty string]"
 	}
-	slog.Info(out, "len", len(out))
+	slog.Info(out)
 	return nil
 }
 
