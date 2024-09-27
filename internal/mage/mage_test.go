@@ -20,7 +20,7 @@ func TestRunCmdWithResult(t *testing.T) {
 			args: args{
 				cmd: "ls",
 			},
-			want:    "mage.go\nmage_test.go\n",
+			want:    "ko.go\nmage.go\nmage_test.go\n",
 			wantErr: false,
 		},
 		{
@@ -84,13 +84,21 @@ func TestRunLongRunningCmd(t *testing.T) {
 		cmd string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    string
-		want1   string
-		wantErr bool
+		name       string
+		args       args
+		wantStdout string
+		wantStderr string
+		wantErr    bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "If command that takes long time given, return result of the command",
+			args: args{
+				cmd: `bash -c 'for i in {1..3}; do echo out; echo err >&2; sleep 1; done'`,
+			},
+			wantStdout: "out\nout\nout\n",
+			wantStderr: "err\nerr\nerr\n",
+			wantErr:    false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -99,11 +107,11 @@ func TestRunLongRunningCmd(t *testing.T) {
 				t.Errorf("RunLongRunningCmd() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("RunLongRunningCmd() got = %v, want %v", got, tt.want)
+			if got != tt.wantStdout {
+				t.Errorf("RunLongRunningCmd() got = %v, want %v", got, tt.wantStdout)
 			}
-			if got1 != tt.want1 {
-				t.Errorf("RunLongRunningCmd() got1 = %v, want %v", got1, tt.want1)
+			if got1 != tt.wantStderr {
+				t.Errorf("RunLongRunningCmd() got1 = %v, want %v", got1, tt.wantStderr)
 			}
 		})
 	}

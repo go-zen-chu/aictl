@@ -28,6 +28,9 @@ runs:
     - --output=${{ inputs.output }}
     - --text-files=${{ inputs.text-files }}
     - ${{ inputs.query }}
+outputs:
+  response:
+    description: "Response from AI"
 branding:
   icon: "cloud"
   color: "blue"

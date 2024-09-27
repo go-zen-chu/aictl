@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -68,8 +69,10 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("query to openai: %w", err)
 			}
-			// Print the response to **stdout**. All the logs are printed to **stderr**
-			fmt.Printf("%s", res)
+
+			if err := printResult(res); err != nil {
+				return fmt.Errorf("print result: %w", err)
+			}
 			return nil
 		},
 	}
@@ -94,4 +97,35 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 		"An array of text files added to query seperated with comma (e.g. file1.go,file2.txt)",
 	)
 	return queryCmd
+}
+
+func printResult(res string) error {
+	if githubAction := os.Getenv("GITHUB_ACTIONS"); githubAction != "" && githubAction == "true" {
+		slog.Info("Running in GitHub Actions detected")
+		// you will get a value like /home/runner/work/_temp/_runner_file_commands/set_output_<guid>
+		ghOutputFilePath := os.Getenv("GITHUB_OUTPUT")
+		if ghOutputFilePath == "" {
+			return fmt.Errorf("GITHUB_OUTPUT environment variable is not set")
+		}
+		f, err := os.OpenFile(ghOutputFilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			return fmt.Errorf("open file of GITHUB_OUTPUT: %w", err)
+		}
+		defer f.Close()
+
+		const githubActionOutputsResponse = "response"
+		_, err = fmt.Fprintf(f, "%s<<AICTL_EOF\n%s\nAICTL_EOF\n",
+			githubActionOutputsResponse,
+			res,
+		)
+		if err != nil {
+			return fmt.Errorf("write response to file of GITHUB_OUTPUT: %w", err)
+		}
+		slog.Debug("Content of GITHUB_OUTPUT file", "filepath", ghOutputFilePath, "content", githubActionOutputsResponse)
+		fmt.Printf("Wrote query output to ${{ steps.<step_id>.outputs.response }}\nfilepath: %s\n", ghOutputFilePath)
+		return nil
+	}
+	// Print the response to **stdout**. All the logs are printed to **stderr**
+	fmt.Println(res)
+	return nil
 }

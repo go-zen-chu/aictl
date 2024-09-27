@@ -8,7 +8,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Get number of commit to of pr commits for checkout
+      - name: Get number of commits for fetch depth
         run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
         env:
           commits: ${{ github.event.pull_request.commits }}
@@ -23,17 +23,15 @@ jobs:
       - name: Get the diff between PR and origin branch
         id: git-diff
         run: |
-          git branch -a
           # If fetch-depth is not specified in checkout, HEAD cannot be found
-          # Make sure to filter out deleted file in diff since you cannot review deleted files
+          # Make sure to filter out deleted file in `git diff` since you cannot review deleted files
           diff_files=$(git diff --name-only --diff-filter=ACMR HEAD..origin/${{ github.event.pull_request.base.ref }} | tr '\n' ',' | sed 's/,$/\n/')
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-      # review the content of the diff
-      - name: Run aictl review
+      - name: Run aictl for code review
         id: aictl-review
         uses: ./ # specify dir where action.yml exists
-        if: steps.git-diff.outputs.diff-files != ''
+        if: steps.git-diff.outputs.diff-files != '' && !contains(github.event.head_commit.message, '[skip ai]')
         with:
           query: "Could you give me a code review for each files with filename in markdown format?"
           text-files: ${{ steps.git-diff.outputs.diff-files }}
@@ -48,4 +46,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           URL: ${{ github.event.pull_request.html_url }}
-
