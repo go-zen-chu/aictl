@@ -18,9 +18,9 @@ func TestRunCmdWithResult(t *testing.T) {
 		{
 			name: "If valid command given, return result of the command",
 			args: args{
-				cmd: "ls",
+				cmd: "echo helloworld",
 			},
-			want:    "ko.go\nmage.go\nmage_test.go\n",
+			want:    "helloworld\n",
 			wantErr: false,
 		},
 		{
@@ -102,7 +102,7 @@ func TestRunLongRunningCmd(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := RunLongRunningCmd(tt.args.cmd)
+			got, got1, err := RunLongRunningCmdWithLog(tt.args.cmd)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RunLongRunningCmd() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -4,7 +4,8 @@ Handy CLI accessing generative AI.
 
 [![Documentation](https://pkg.go.dev/badge/github.com/go-zen-chu/aictl)](http://pkg.go.dev/github.com/go-zen-chu/aictl)
 [![Docker Pulls](https://img.shields.io/docker/pulls/amasuda/aictl)](https://hub.docker.com/repository/docker/amasuda/aictl/general)
-[![Actions Status](https://github.com/go-zen-chu/aictl/workflows/ci/badge.svg)](https://github.com/go-zen-chu/aictl/actions)
+[![Actions Status](https://github.com/go-zen-chu/aictl/workflows/main/badge.svg)](https://github.com/go-zen-chu/aictl/actions)
+[![Actions Status](https://github.com/go-zen-chu/aictl/workflows/check-pr/badge.svg)](https://github.com/go-zen-chu/aictl/actions)
 [![GitHub issues](https://img.shields.io/github/issues/go-zen-chu/aictl.svg)](https://github.com/go-zen-chu/aictl/issues)
 
 ## Usage

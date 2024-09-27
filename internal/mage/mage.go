@@ -46,6 +46,7 @@ func RunCmdWithResult(cmd string) (string, error) {
 }
 
 // RunCmdWithResultWithLog runs a command and returns the result and error of the command. It logs which command was run before running it
+// **Do not use this function with commands that have sensitive information**
 func RunCmdWithResultWithLog(cmd string) (string, error) {
 	return runCmd(cmd, func(cmd string) {
 		slog.Info("Running command", "cmd", cmd)
@@ -53,6 +54,7 @@ func RunCmdWithResultWithLog(cmd string) (string, error) {
 }
 
 // RunCmdWithLog runs a command and logs the result
+// **Do not use this function with commands that have sensitive information**
 func RunCmdWithLog(cmd string) error {
 	out, err := RunCmdWithResultWithLog(cmd)
 	if err != nil {
@@ -65,7 +67,7 @@ func RunCmdWithLog(cmd string) error {
 	return nil
 }
 
-func RunLongRunningCmd(cmd string) (string, string, error) {
+func runLongRunningCmd(cmd string, preRunCmd func(cmd string)) (string, string, error) {
 	cmdSplit := splitCmd(cmd)
 	c := exec.Command(cmdSplit[0], cmdSplit[1:]...)
 	cmdStdoutBuffer := bytes.NewBufferString("")
@@ -74,15 +76,30 @@ func RunLongRunningCmd(cmd string) (string, string, error) {
 	cmdStdoutMultiWriter := io.MultiWriter(os.Stdout, cmdStdoutBuffer)
 	// write to both stderr and string buffer
 	cmdStderrMultiWriter := io.MultiWriter(os.Stderr, cmdStderrBuffer)
-	slog.Info("Running long running command", "cmd", c.String())
 	c.Stdout = cmdStdoutMultiWriter
 	c.Stderr = cmdStderrMultiWriter
+	if preRunCmd != nil {
+		preRunCmd(cmd)
+	}
 	err := c.Run()
 	if err != nil {
 		return cmdStdoutBuffer.String(), cmdStderrBuffer.String(), fmt.Errorf("run command: %w", err)
 	}
 	// return both results with string
 	return cmdStdoutBuffer.String(), cmdStderrBuffer.String(), nil
+}
+
+// RunLongRunningCmd runs a command that takes long time and returns the result and error of the command
+func RunLongRunningCmd(cmd string) (string, string, error) {
+	return runLongRunningCmd(cmd, nil)
+}
+
+// RunLongRunningCmdWithLog runs a command that takes long time and returns the result and error of the command with logs
+// **Do not use this function with commands that have sensitive information**
+func RunLongRunningCmdWithLog(cmd string) (string, string, error) {
+	return runLongRunningCmd(cmd, func(cmd string) {
+		slog.Info("Running long running command", "cmd", cmd)
+	})
 }
 
 func getGitCommitShortHash() (string, error) {

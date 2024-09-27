@@ -4,13 +4,15 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"log/slog"
+	"os"
 
 	"github.com/go-zen-chu/aictl/internal/mage"
 )
+
+const imageRegistry = "amasuda"
+const repository = "aictl"
+const dockerFileLocation = "."
 
 func init() {
 	// by default, magefile does not output stderr
@@ -19,24 +21,21 @@ func init() {
 }
 
 /*=======================
-setup
-=======================*/
-
-// Install tools for developping this repository
-func InstallDevTools() error {
-	// make sure golang is already installed
-	return mage.RunCmdWithLog("go install github.com/google/ko@latest")
-}
-
-/*=======================
 workflow
 =======================*/
 
-// Push to docker.io
-func DockerPublish() error {
-	outMsg, errMsg, err := mage.RunLongRunningCmd("docker push amasuda/aictl:latest")
-	if err != nil {
-		return fmt.Errorf("pushing to docker: %w\nstdout: %s\nstderr: %s", err, outMsg, errMsg)
-	}
-	return nil
+func DockerLogin() error {
+	return mage.DockerLogin()
+}
+
+func DockerBuildLatest() error {
+	return mage.DockerBuildLatest(imageRegistry, repository, dockerFileLocation)
+}
+
+func DockerPublishLatest() error {
+	return mage.DockerPublishLatest(imageRegistry, repository, dockerFileLocation)
+}
+
+func DockerBuildPublishWithGenTag() error {
+	return mage.DockerBuildPublishGeneratedImageTag(imageRegistry, repository, dockerFileLocation)
 }
