@@ -45,7 +45,17 @@ jobs:
         uses: ./ # specify dir where action.yml exists
         if: steps.git-diff.outputs.diff-files != '' && !contains(github.event.head_commit.message, '[skip ai]')
         with:
-          query: "Could you give me a code review for each files with filename in markdown format?"
+          query: |
+            Give me a code review with markdown format using a template as below:
+
+            # Overall summary of code review
+            ...
+
+            # Review details each files
+
+            ## <file name here>
+            ...
+
           text-files: ${{ steps.git-diff.outputs.diff-files }}
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
