@@ -1,0 +1,32 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-image-publish:
+    name: Build and Publish docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # docker command is pre-installed in the ubutnu-latest image
+      - name: Docker login with mage
+        uses: magefile/mage-action@v3
+        with:
+          version: latest
+          args: DockerLogin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Publish image with timestamp
+        uses: magefile/mage-action@v3
+        with:
+          version: latest
+          args: DockerBuildPublishWithGenTag
+      - name: Publish image with latest tag
+        uses: magefile/mage-action@v3
+        with:
+          version: latest
+          args: DockerBuildLatest
