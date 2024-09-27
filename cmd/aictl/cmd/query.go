@@ -5,7 +5,6 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"os/user"
 
 	"github.com/spf13/cobra"
 )
@@ -103,25 +102,11 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 func printResult(res string) error {
 	if githubAction := os.Getenv("GITHUB_ACTIONS"); githubAction != "" && githubAction == "true" {
 		slog.Info("Running in GitHub Actions detected")
-
-		slog.Debug("Checking permissions")
-		currentUser, err := user.Current()
-		if err != nil {
-			return fmt.Errorf("get current user: %w", err)
-		}
-		slog.Debug("Current process user name and id", "user", currentUser.Username, "uid", currentUser.Uid)
-
 		// you will get a value like /home/runner/work/_temp/_runner_file_commands/set_output_<guid>
 		ghOutputFilePath := os.Getenv("GITHUB_OUTPUT")
 		if ghOutputFilePath == "" {
 			return fmt.Errorf("GITHUB_OUTPUT environment variable is not set")
 		}
-		fi, err := os.Stat(ghOutputFilePath)
-		if err != nil {
-			return fmt.Errorf("GITHUB_OUTPUT file (%s) does not exist: %w", ghOutputFilePath, err)
-		}
-		slog.Debug("file info", "fi", fi.Sys())
-
 		f, err := os.OpenFile(ghOutputFilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			return fmt.Errorf("open file of GITHUB_OUTPUT: %w", err)
@@ -136,12 +121,8 @@ func printResult(res string) error {
 		if err != nil {
 			return fmt.Errorf("write response to file of GITHUB_OUTPUT: %w", err)
 		}
-		slog.Debug("Write to GITHUB_OUTPUT file", "filepath", ghOutputFilePath, "content", githubActionOutputsResponse)
-		bt, err := os.ReadFile(ghOutputFilePath)
-		if err != nil {
-			return fmt.Errorf("read github output file: %w", err)
-		}
-		fmt.Printf("Write query output to ${{ steps.<step_id>.outputs.response }}\nfilepath: %s\n%s\n", ghOutputFilePath, string(bt))
+		slog.Debug("Content of GITHUB_OUTPUT file", "filepath", ghOutputFilePath, "content", githubActionOutputsResponse)
+		fmt.Printf("Wrote query output to ${{ steps.<step_id>.outputs.response }}\nfilepath: %s\n", ghOutputFilePath)
 		return nil
 	}
 	// Print the response to **stdout**. All the logs are printed to **stderr**
