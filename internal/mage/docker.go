@@ -39,7 +39,7 @@ func DockerBuildLatest(registry string, repository string, dockerFileLocation st
 
 // DockerPublish pushes image
 func DockerPublish(registry string, repository string, tag string, dockerFileLocation string) error {
-	pushCmd := fmt.Sprintf("docker push -t %s/%s:%s %s", registry, repository, tag, dockerFileLocation)
+	pushCmd := fmt.Sprintf("docker push %s/%s:%s %s", registry, repository, tag, dockerFileLocation)
 	outMsg, errMsg, err := RunLongRunningCmdWithLog(pushCmd)
 	if err != nil {
 		return fmt.Errorf("pushing to docker (%s): %w\nstdout: %s\nstderr: %s", pushCmd, err, outMsg, errMsg)

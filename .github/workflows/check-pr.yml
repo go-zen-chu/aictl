@@ -63,8 +63,8 @@ jobs:
         run: |
           # make sure to checkout to pr branch and resolve detached HEAD state
           git checkout ${{ github.ref_name }}
-          echo -n "${{steps.aictl-review.outputs.response}}" > response.md
-          gh pr comment --body-file ./response.md "${URL}"
+          # use single quote for not evaluate `code` string in md
+          echo -n '${{ steps.aictl-review.outputs.response }}' | gh pr comment --body-file - "${URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           URL: ${{ github.event.pull_request.html_url }}
