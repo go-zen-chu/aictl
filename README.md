@@ -9,7 +9,27 @@ Handy CLI accessing generative AI.
 [![Actions Status](https://github.com/go-zen-chu/aictl/workflows/tag-release/badge.svg)](https://github.com/go-zen-chu/aictl/actions/workflows/tag-release.yml)
 [![GitHub issues](https://img.shields.io/github/issues/go-zen-chu/aictl.svg)](https://github.com/go-zen-chu/aictl/issues)
 
-## Install
+- [aictl](#aictl)
+  - [Install CLI](#install-cli)
+    - [homebrew](#homebrew)
+    - [binary](#binary)
+  - [Usage](#usage)
+    - [Authentication](#authentication)
+    - [In terminal](#in-terminal)
+      - [A simple usage](#a-simple-usage)
+      - [Deliver a command result to stdin with -i option](#deliver-a-command-result-to-stdin-with--i-option)
+      - [Specify a query result format in text or json](#specify-a-query-result-format-in-text-or-json)
+      - [Specify which language you want to have a response](#specify-which-language-you-want-to-have-a-response)
+      - [Give text files and ask about the file](#give-text-files-and-ask-about-the-file)
+  - [GitHub Actions](#github-actions)
+    - [Parameters](#parameters)
+    - [Examples](#examples)
+      - [Simple Query](#simple-query)
+      - [With query options](#with-query-options)
+      - [Review PR](#review-pr)
+  - [In the other CI](#in-the-other-ci)
+
+## Install CLI
 
 ### homebrew
 
@@ -22,6 +42,8 @@ brew install go-zen-chu/tools/aictl
 You can download from [GitHub release](https://github.com/go-zen-chu/aictl/releases).
 
 ## Usage
+
+If you have any trouble, use `-v` for verbosing logs.
 
 ### Authentication
 
@@ -103,11 +125,18 @@ These diffs are the result of \`git diff --no-ext-diff\` command. \
 $(git diff --no-ext-diff)"
 ```
 
-### In CI
+## GitHub Actions
 
-You can use aictl in any CI using docker image.
+### Parameters
 
-Below, we prepare a action for GitHub Actions.
+| name         | value type  | required | default | description                                                                                                                                                                                                             |
+| ------------ | ------ | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| query | string | *        | -       | Query that you want to ask to generative AI |
+| output    | string | -        | `text`       | Response format. You can specify `text` or `json`. In `text` format, you can ask your response format in query to get other format like yaml but the actual response may differ according to AI response. |
+| language   | string | -         | `English`     | Which language you want to get response.   |
+| text-files   | string   | -         | -   | An array of text file paths added to query seperated with comma (e.g. file1.go,file2.txt)           |
+
+### Examples
 
 #### Simple Query
 
@@ -182,6 +211,6 @@ jobs:
         AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
 ```
 
-## Troubleshoot
+## In the other CI
 
-If you have any trouble, use `-v` for verbosing command logs.
+You can use aictl in any CI using [docker image](https://hub.docker.com/repository/docker/amasuda/aictl/general).
