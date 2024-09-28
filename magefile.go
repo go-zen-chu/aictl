@@ -28,6 +28,7 @@ func init() {
 setup
 =======================*/
 
+// InstallDevTools installs required development tools for this project
 func InstallDevTools() error {
 	outMsg, errMsg, err := mage.RunLongRunningCmdWithLog("go install go.uber.org/mock/mockgen@latest")
 	if err != nil {
@@ -60,6 +61,7 @@ func DockerBuildPublishWithGenTag() error {
 	return mage.DockerBuildPublishGeneratedImageTag(imageRegistry, repository, dockerFileLocation)
 }
 
+// GitPushTag pushes current tag to remote repository
 func GitPushTag(releaseComment string) error {
 	return mage.GitPushTag(currentTagVersion, releaseComment)
 }
@@ -89,6 +91,7 @@ const formulaTemplate = `class Aictl < Formula
 end
 `
 
+// UpdateFormula updates formula with current version for homebrew tap
 func UpdateFormula() error {
 	ft := fmt.Sprintf(formulaTemplate, currentVersion)
 	return mage.GenerateFormula(ft, "go-zen-chu", "aictl", currentTagVersion)
