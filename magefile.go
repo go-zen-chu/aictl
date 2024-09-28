@@ -52,7 +52,7 @@ func DockerBuildLatest() error {
 }
 
 func DockerPublishLatest() error {
-	return mage.DockerPublishLatest(imageRegistry, repository, dockerFileLocation)
+	return mage.DockerPublishLatest(imageRegistry, repository)
 }
 
 func DockerBuildPublishWithGenTag() error {

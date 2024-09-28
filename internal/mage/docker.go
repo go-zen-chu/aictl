@@ -38,8 +38,8 @@ func DockerBuildLatest(registry string, repository string, dockerFileLocation st
 }
 
 // DockerPublish pushes image
-func DockerPublish(registry string, repository string, tag string, dockerFileLocation string) error {
-	pushCmd := fmt.Sprintf("docker push %s/%s:%s %s", registry, repository, tag, dockerFileLocation)
+func DockerPublish(registry string, repository string, tag string) error {
+	pushCmd := fmt.Sprintf("docker push %s/%s:%s", registry, repository, tag)
 	outMsg, errMsg, err := RunLongRunningCmdWithLog(pushCmd)
 	if err != nil {
 		return fmt.Errorf("pushing to docker (%s): %w\nstdout: %s\nstderr: %s", pushCmd, err, outMsg, errMsg)
@@ -48,8 +48,8 @@ func DockerPublish(registry string, repository string, tag string, dockerFileLoc
 }
 
 // DockerPublishLatest pushes image with latest tag
-func DockerPublishLatest(registry string, repository string, dockerFileLocation string) error {
-	return DockerPublish(registry, repository, "latest", dockerFileLocation)
+func DockerPublishLatest(registry string, repository string) error {
+	return DockerPublish(registry, repository, "latest")
 }
 
 // DockerBuildPublishLatest builds and pushes image with latest tag
@@ -57,7 +57,7 @@ func DockerBuildPublishLatest(registry string, repository string, dockerFileLoca
 	if err := DockerBuildLatest(registry, repository, dockerFileLocation); err != nil {
 		return fmt.Errorf("building latest docker image: %w", err)
 	}
-	if err := DockerPublishLatest(registry, repository, dockerFileLocation); err != nil {
+	if err := DockerPublishLatest(registry, repository); err != nil {
 		return fmt.Errorf("pushing latest docker image: %w", err)
 	}
 	return nil
@@ -72,7 +72,7 @@ func DockerBuildPublishGeneratedImageTag(registry string, repository string, doc
 	if err := DockerBuild(registry, repository, tag, dockerFileLocation); err != nil {
 		return fmt.Errorf("building docker image with generated tag: %w", err)
 	}
-	if err := DockerPublish(registry, repository, tag, dockerFileLocation); err != nil {
+	if err := DockerPublish(registry, repository, tag); err != nil {
 		return fmt.Errorf("pushing docker image with generated tag: %w", err)
 	}
 	return nil
