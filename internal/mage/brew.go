@@ -71,6 +71,8 @@ func GenerateFormula(formulaTemplate, owner, repo, gitTag string) error {
 	commitPushCmd := "bash -c " +
 		"'" +
 		"cd " + tapRepo +
+		" && git config user.name \"GitHub Action\"" +
+		" && git config user.email \"action@github.com\"" +
 		" && git add --all" +
 		" && git commit -m \"update formula to " + gitTag + "\"" +
 		" && git push" +
