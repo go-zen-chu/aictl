@@ -138,3 +138,22 @@ func GenerateImageTag() (string, error) {
 	currentDateTime := getCurrentDateTimeUTC()
 	return strings.Join([]string{branch, commitHash, currentDateTime}, "_"), nil
 }
+
+// GitPushTag pushes a tag to the git repository with a release comment
+func GitPushTag(tag string, releaseComment string) error {
+	if tag == "" {
+		return fmt.Errorf("tag is empty")
+	}
+	if tag[0] != 'v' {
+		return fmt.Errorf("tag should start with 'v'")
+	}
+	out, err := RunCmdWithResult(fmt.Sprintf("git tag -a %s -m %s", tag, releaseComment))
+	if err != nil {
+		return fmt.Errorf("tagging: %w\nerror log: %s", err, out)
+	}
+	out, err = RunCmdWithResult(fmt.Sprintf("git push origin/main tag %s", tag))
+	if err != nil {
+		return fmt.Errorf("pushing tags: %w\nerror log: %s", err, out)
+	}
+	return nil
+}

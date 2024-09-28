@@ -11,6 +11,8 @@ import (
 	"github.com/go-zen-chu/aictl/internal/mage"
 )
 
+const currentVersion = "v1.0.0"
+
 const imageRegistry = "amasuda"
 const repository = "aictl"
 const dockerFileLocation = "."
@@ -26,7 +28,11 @@ setup
 =======================*/
 
 func InstallDevTools() error {
-	outMsg, errMsg, err := mage.RunLongRunningCmdWithLog("go install github.com/goreleaser/goreleaser/v2@latest")
+	outMsg, errMsg, err := mage.RunLongRunningCmdWithLog("go install go.uber.org/mock/mockgen@latest")
+	if err != nil {
+		return fmt.Errorf("installing mockgen: %w\nstdout: %s\nstderr: %s\n", err, outMsg, errMsg)
+	}
+	outMsg, errMsg, err = mage.RunLongRunningCmdWithLog("go install github.com/goreleaser/goreleaser/v2@latest")
 	if err != nil {
 		return fmt.Errorf("installing goreleaser: %w\nstdout: %s\nstderr: %s\n", err, outMsg, errMsg)
 	}
@@ -51,4 +57,8 @@ func DockerPublishLatest() error {
 
 func DockerBuildPublishWithGenTag() error {
 	return mage.DockerBuildPublishGeneratedImageTag(imageRegistry, repository, dockerFileLocation)
+}
+
+func GitPushTag(releaseComment string) error {
+	return mage.GitPushTag(currentVersion, releaseComment)
 }
