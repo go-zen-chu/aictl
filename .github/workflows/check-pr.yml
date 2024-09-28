@@ -57,6 +57,7 @@ jobs:
           cat <<AICTL_REVIEW_EOF > response.md
           ${{ steps.aictl-review.outputs.response }}
           AICTL_REVIEW_EOF
+          cat response.md
           gh pr comment --body-file response.md "${URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
