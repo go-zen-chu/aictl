@@ -54,7 +54,8 @@ jobs:
         run: |
           # make sure to checkout to pr branch and resolve detached HEAD state
           git checkout ${{ github.ref_name }}
-          cat <<AICTL_REVIEW_EOF > response.md
+          # TIPS: surrounding with single quote, you can ignore `code` string in outputs
+          cat <<'AICTL_REVIEW_EOF' > response.md
           ${{ steps.aictl-review.outputs.response }}
           AICTL_REVIEW_EOF
           gh pr comment --body-file response.md "${URL}"
