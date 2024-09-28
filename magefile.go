@@ -11,7 +11,7 @@ import (
 	"github.com/go-zen-chu/aictl/internal/mage"
 )
 
-const currentVersion = "1.0.3"
+const currentVersion = "1.0.4"
 const currentTagVersion = "v" + currentVersion
 
 const imageRegistry = "amasuda"
