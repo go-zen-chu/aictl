@@ -28,6 +28,7 @@ Handy CLI accessing generative AI.
       - [With query options](#with-query-options)
       - [Review PR](#review-pr)
   - [In the other CI](#in-the-other-ci)
+  - [Development](#development)
 
 ## Install CLI
 
@@ -214,3 +215,15 @@ jobs:
 ## In the other CI
 
 You can use aictl in any CI using [docker image](https://hub.docker.com/repository/docker/amasuda/aictl/general).
+
+## Development
+
+We use [magefile](https://magefile.org/) to make development easier.
+
+```console
+# install required tools
+mage installDevTools
+
+# after main branch updated push new version tag
+mage gitPushTag
+```

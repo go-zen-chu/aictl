@@ -31,3 +31,11 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # update homebrew tap version after release
+      - name: Update homebrew formula version after release
+        uses: magefile/mage-action@v3
+        with:
+          version: latest
+          args: UpdateFormula
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

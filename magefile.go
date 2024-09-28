@@ -11,7 +11,8 @@ import (
 	"github.com/go-zen-chu/aictl/internal/mage"
 )
 
-const currentVersion = "v1.0.3"
+const currentVersion = "1.0.3"
+const currentTagVersion = "v" + currentVersion
 
 const imageRegistry = "amasuda"
 const repository = "aictl"
@@ -27,6 +28,7 @@ func init() {
 setup
 =======================*/
 
+// InstallDevTools installs required development tools for this project
 func InstallDevTools() error {
 	outMsg, errMsg, err := mage.RunLongRunningCmdWithLog("go install go.uber.org/mock/mockgen@latest")
 	if err != nil {
@@ -59,6 +61,38 @@ func DockerBuildPublishWithGenTag() error {
 	return mage.DockerBuildPublishGeneratedImageTag(imageRegistry, repository, dockerFileLocation)
 }
 
+// GitPushTag pushes current tag to remote repository
 func GitPushTag(releaseComment string) error {
-	return mage.GitPushTag(currentVersion, releaseComment)
+	return mage.GitPushTag(currentTagVersion, releaseComment)
+}
+
+const formulaTemplate = `class Aictl < Formula
+    desc "Handy CLI tool to ask anything to generative AI in command line."
+    homepage "https://github.com/go-zen-chu/aictl"
+    version "%[1]s"
+    
+    on_macos do
+        if Hardware::CPU.arm?
+            url "https://github.com/go-zen-chu/aictl/releases/download/v%[1]s/aictl_Darwin_arm64.tar.gz"
+            sha256 "{{.ChecksumSHA256DarwinArm64}}"
+        else
+            url "https://github.com/go-zen-chu/aictl/releases/download/v%[1]s/aictl_Darwin_x86_64.tar.gz"
+            sha256 "{{.ChecksumSHA256DarwinX86_64}}"
+        end
+    end
+
+    def install
+        bin.install "aictl"
+    end
+
+    test do
+        system "#{bin}/aictl", "--help"
+    end
+end
+`
+
+// UpdateFormula updates formula with current version for homebrew tap
+func UpdateFormula() error {
+	ft := fmt.Sprintf(formulaTemplate, currentVersion)
+	return mage.GenerateFormula(ft, "go-zen-chu", "aictl", currentTagVersion)
 }
