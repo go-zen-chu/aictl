@@ -9,6 +9,18 @@ Handy CLI accessing generative AI.
 [![Actions Status](https://github.com/go-zen-chu/aictl/workflows/tag-release/badge.svg)](https://github.com/go-zen-chu/aictl/actions/workflows/tag-release.yml)
 [![GitHub issues](https://img.shields.io/github/issues/go-zen-chu/aictl.svg)](https://github.com/go-zen-chu/aictl/issues)
 
+## Install
+
+### homebrew
+
+```console
+brew install go-zen-chu/tools/aictl
+```
+
+### binary
+
+You can download from [GitHub release](https://github.com/go-zen-chu/aictl/releases).
+
 ## Usage
 
 ### Authentication

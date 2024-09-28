@@ -20,13 +20,8 @@ func NewRootCmd(cmdReq CommandRequirements) *cobra.Command {
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd := &cobra.Command{
 		Use:   "aictl",
-		Short: "A handy cli sending query to generative AI",
-		Long: `A longer description that spans multiple lines and likely contains
-	examples and usage of using your application. For example:
-
-	Cobra is a CLI library for Go that empowers applications.
-	This application is a tool to generate the needed files
-	to quickly create a Cobra application.`,
+		Short: "A handy CLI for asking query to generative AI",
+		Long:  `A handy CLI for asking query to generative AI`,
 		// Uncomment the following line if your bare application
 		// has an action associated with it:
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {

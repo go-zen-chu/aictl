@@ -23,12 +23,12 @@ func NewQueryCmd(cmdReq CommandRequirements) *cobra.Command {
 	queryCmd := &cobra.Command{
 		Use:   "query",
 		Short: "Run query to generative AI",
-		Long: `A longer description that spans multiple lines and likely contains examples
-	and usage of using your command. For example:
-	
-	Cobra is a CLI library for Go that empowers applications.
-	This application is a tool to generate the needed files
-	to quickly create a Cobra application.`,
+		Long: `Run query to generative AI.
+You can specify the query text as an argument or read from stdin.
+The output format can be text or json and response language can be set.
+
+Additionally, you can add text files to the query by specifying the file paths.
+`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			validate := func(args []string) error {
 				if !inputStdin && len(args) != 1 {
