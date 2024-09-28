@@ -79,7 +79,7 @@ Additionally, you can add text files to the query by specifying the file paths.
 	queryCmd.Flags().StringVarP(&outputFormat,
 		"output", "o",
 		defaultOutputFormat,
-		"Output format text or json (default is text)",
+		"Output format text or json (default is text). In `text` format, you can ask your response format in query to get other format like yaml but the actual response may differ according to AI response.",
 	)
 	queryCmd.Flags().StringVarP(&responseLanguage,
 		"language", "l",
@@ -94,7 +94,7 @@ Additionally, you can add text files to the query by specifying the file paths.
 	queryCmd.Flags().StringSliceVarP(&textFilePaths,
 		"text-files", "t",
 		defaultTextFilePaths,
-		"An array of text files added to query seperated with comma (e.g. file1.go,file2.txt)",
+		"An array of text file paths added to query seperated with comma (e.g. file1.go,file2.txt)",
 	)
 	return queryCmd
 }
