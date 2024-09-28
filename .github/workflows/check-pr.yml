@@ -50,6 +50,7 @@ jobs:
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
       - name: Post aictl review result to PR comment
+        if: steps.aictl-review.outcome != 'skipped'
         run: |
           # make sure to checkout to pr branch and resolve detached HEAD state
           git checkout ${{ github.ref_name }}
