@@ -11,7 +11,7 @@ import (
 	"github.com/go-zen-chu/aictl/internal/mage"
 )
 
-const currentVersion = "v1.0.1"
+const currentVersion = "v1.0.2"
 
 const imageRegistry = "amasuda"
 const repository = "aictl"

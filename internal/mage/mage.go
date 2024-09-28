@@ -147,11 +147,11 @@ func GitPushTag(tag string, releaseComment string) error {
 	if tag[0] != 'v' {
 		return fmt.Errorf("tag should start with 'v'")
 	}
-	out, err := RunCmdWithResult(fmt.Sprintf("git tag -a %s -m %s", tag, releaseComment))
+	out, err := RunCmdWithResult(fmt.Sprintf("git tag -a %s -m \"%s\"", tag, releaseComment))
 	if err != nil {
 		return fmt.Errorf("tagging: %w\nerror log: %s", err, out)
 	}
-	out, err = RunCmdWithResult(fmt.Sprintf("git push origin/main tag %s", tag))
+	out, err = RunCmdWithResult(fmt.Sprintf("git push origin tag %s", tag))
 	if err != nil {
 		return fmt.Errorf("pushing tags: %w\nerror log: %s", err, out)
 	}
