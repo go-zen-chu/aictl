@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - ./cmd/**
+      - ./infra/**
+      - ./internal/**
+      - ./usecase/**
+      - Dockerfile
+      - go.**
 
 jobs:
   build-publish-image:
