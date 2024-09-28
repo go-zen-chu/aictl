@@ -45,7 +45,7 @@ jobs:
         uses: ./ # specify dir where action.yml exists
         if: steps.git-diff.outputs.diff-files != '' && !contains(github.event.head_commit.message, '[skip ai]')
         with:
-          query: "Could you give me a code review for each files with filename in markdown format?"
+          query: Give me a code review summary and reviews for each file.
           text-files: ${{ steps.git-diff.outputs.diff-files }}
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
@@ -53,11 +53,9 @@ jobs:
         run: |
           # make sure to checkout to pr branch and resolve detached HEAD state
           git checkout ${{ github.ref_name }}
-          # use single quote for not evaluate `code` string in md
           cat <<AICTL_REVIEW_EOF > response.md
           ${{ steps.aictl-review.outputs.response }}
           AICTL_REVIEW_EOF
-          cat response.md
           gh pr comment --body-file response.md "${URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-image-publish:
+  build-publish-image:
     name: Build and Publish docker image
     runs-on: ubuntu-latest
     steps:

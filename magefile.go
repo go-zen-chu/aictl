@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -18,6 +19,18 @@ func init() {
 	// by default, magefile does not output stderr
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
+}
+
+/*=======================
+setup
+=======================*/
+
+func InstallDevTools() error {
+	outMsg, errMsg, err := mage.RunLongRunningCmdWithLog("go install github.com/goreleaser/goreleaser/v2@latest")
+	if err != nil {
+		return fmt.Errorf("installing goreleaser: %w\nstdout: %s\nstderr: %s\n", err, outMsg, errMsg)
+	}
+	return nil
 }
 
 /*=======================
