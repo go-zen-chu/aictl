@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/go-zen-chu/aictl/internal/mage"
+	gbt "github.com/go-zen-chu/go-build-tools"
 )
 
 const currentVersion = "1.0.4"
@@ -30,11 +30,11 @@ setup
 
 // InstallDevTools installs required development tools for this project
 func InstallDevTools() error {
-	outMsg, errMsg, err := mage.RunLongRunningCmdWithLog("go install go.uber.org/mock/mockgen@latest")
+	outMsg, errMsg, err := gbt.RunLongRunningCmdWithLog("go install go.uber.org/mock/mockgen@latest")
 	if err != nil {
 		return fmt.Errorf("installing mockgen: %w\nstdout: %s\nstderr: %s\n", err, outMsg, errMsg)
 	}
-	outMsg, errMsg, err = mage.RunLongRunningCmdWithLog("go install github.com/goreleaser/goreleaser/v2@latest")
+	outMsg, errMsg, err = gbt.RunLongRunningCmdWithLog("go install github.com/goreleaser/goreleaser/v2@latest")
 	if err != nil {
 		return fmt.Errorf("installing goreleaser: %w\nstdout: %s\nstderr: %s\n", err, outMsg, errMsg)
 	}
@@ -46,24 +46,24 @@ workflow
 =======================*/
 
 func DockerLogin() error {
-	return mage.DockerLogin()
+	return gbt.DockerLogin()
 }
 
 func DockerBuildLatest() error {
-	return mage.DockerBuildLatest(imageRegistry, repository, dockerFileLocation)
+	return gbt.DockerBuildLatest(imageRegistry, repository, dockerFileLocation)
 }
 
 func DockerPublishLatest() error {
-	return mage.DockerPublishLatest(imageRegistry, repository)
+	return gbt.DockerPublishLatest(imageRegistry, repository)
 }
 
 func DockerBuildPublishWithGenTag() error {
-	return mage.DockerBuildPublishGeneratedImageTag(imageRegistry, repository, dockerFileLocation)
+	return gbt.DockerBuildPublishGeneratedImageTag(imageRegistry, repository, dockerFileLocation)
 }
 
 // GitPushTag pushes current tag to remote repository
 func GitPushTag(releaseComment string) error {
-	return mage.GitPushTag(currentTagVersion, releaseComment)
+	return gbt.GitPushTag(currentTagVersion, releaseComment)
 }
 
 const formulaTemplate = `class Aictl < Formula
@@ -94,5 +94,5 @@ end
 // UpdateFormula updates formula with current version for homebrew tap
 func UpdateFormula() error {
 	ft := fmt.Sprintf(formulaTemplate, currentVersion)
-	return mage.GenerateFormula(ft, "go-zen-chu", "aictl", currentTagVersion)
+	return gbt.GenerateFormula(ft, "go-zen-chu", "aictl", currentTagVersion)
 }

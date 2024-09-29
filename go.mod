@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/go-zen-chu/go-build-tools v0.0.0-20240929035559-91e20c6456d7 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 )

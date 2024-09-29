@@ -1,4 +1,6 @@
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
+github.com/go-zen-chu/go-build-tools v0.0.0-20240929035559-91e20c6456d7 h1:3asGc0SfK+PsjGZSnupD/ewrHysGoRl33VFG/GM9Dlc=
+github.com/go-zen-chu/go-build-tools v0.0.0-20240929035559-91e20c6456d7/go.mod h1:QMRc2x2P6MHI75p5jkH0lXFYnfGnS0Q74hlBoRU0yqU=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
