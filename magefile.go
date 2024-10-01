@@ -94,5 +94,5 @@ end
 // UpdateFormula updates formula with current version for homebrew tap
 func UpdateFormula() error {
 	ft := fmt.Sprintf(formulaTemplate, currentVersion)
-	return gbt.GenerateFormula(ft, "go-zen-chu", "aictl", currentTagVersion)
+	return gbt.GenerateFormula(ft, "go-zen-chu", "homebrew-tools", "go-zen-chu", "aictl", currentTagVersion)
 }
