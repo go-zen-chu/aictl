@@ -11,7 +11,7 @@ import (
 	gbt "github.com/go-zen-chu/go-build-tools"
 )
 
-const currentVersion = "1.0.4"
+const currentVersion = "1.0.5"
 const currentTagVersion = "v" + currentVersion
 
 const imageRegistry = "amasuda"
