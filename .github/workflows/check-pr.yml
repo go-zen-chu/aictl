@@ -15,6 +15,7 @@ jobs:
         uses: golangci/golangci-lint-action@v6
       - name: Test code
         run: go test -v ./...
+
   check-with-aictl:
     runs-on: ubuntu-latest
     permissions:
@@ -40,10 +41,14 @@ jobs:
           diff_files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.event.pull_request.base.ref }}..HEAD | tr '\n' ',' | sed 's/,$/\n/')
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
+          # In PR, you cannot get `github.event.head_commit.message` so you need to get commit message via git log
+          commit_msg=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+          echo "commit_msg: ${commit_msg}"
+          echo "commit-msg=${commit_msg}" >> "$GITHUB_OUTPUT"
       - name: Run aictl for code review
         id: aictl-review
         uses: ./ # specify dir where action.yml exists
-        if: steps.git-diff.outputs.diff-files != '' && !contains(github.event.head_commit.message, '[skip ai]')
+        if: ${{ steps.git-diff.outputs.diff-files != '' && !contains(steps.git-diff.outputs.commit-msg, '[skip ai]') }}
         with:
           query: Give me a code review summary and reviews for each file.
           text-files: ${{ steps.git-diff.outputs.diff-files }}

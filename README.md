@@ -155,13 +155,15 @@ Please refer to [Passing information between jobs \- GitHub Docs](https://docs.g
 
 Make sure to create API KEY in OpenAI and set `secrets.AICTL_OPENAI_API_KEY` in your github repository before running actions below.
 
+Check [API Reference \- OpenAI API](https://platform.openai.com/docs/api-reference/authentication) for the API key.
+
 ```yaml
 jobs:
   check-aictl:
     runs-on: ubuntu-latest
     steps:
     # Example 1, a simple query
-    - uses: go-zen-chu/aictl-query@main
+    - uses: go-zen-chu/aictl@main
       with:
         query: "Hello! GitHub Action"
       env:
@@ -184,7 +186,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # Example 3, specifing an output format and response language
-    - uses: go-zen-chu/aictl-query@main
+    - uses: go-zen-chu/aictl@main
       with:
         query: "How are you doing?"
         language: "Japanese"
@@ -206,22 +208,52 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-    - name: Git checkout
-      uses: actions/checkout@v4
-    - name: Fetch base branch
-      run: git fetch origin ${{ github.event.pull_request.base.ref }}
-    - name: Get the diff between PR and target
-      id: git-diff
-      run: |
-        diff_files=$(git diff --name-only HEAD origin/${{ github.event.pull_request.base.ref }} | tr "\n" ",")
-        echo "diff_files: ${diff_files}"
-        echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-    - uses: go-zen-chu/aictl-query@main
-      with:
-        query: "Could you give me a code review for each files with filename?"
-        text-files: ${{ steps.git-diff.outputs.diff-files }}
-      env:
-        AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
+      - name: Get number of commits for fetch depth
+        run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
+        env:
+          commits: ${{ github.event.pull_request.commits }}
+      - name: Git checkout until fetch-depth
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ env.fetch_depth }}
+          # need to specify ref to fetch PR head, otherwise you get main branch with no HEAD
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Fetch base branch as origin
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}
+      - name: Get the diff between PR and origin branch
+        id: git-diff
+        run: |
+          # If fetch-depth is not specified in checkout, HEAD cannot be found
+          # Make sure to filter out deleted file in `git diff` since you cannot review deleted files
+          diff_files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.event.pull_request.base.ref }}..HEAD | tr '\n' ',' | sed 's/,$/\n/')
+          echo "diff_files: ${diff_files}"
+          echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
+          # In PR, you cannot get `github.event.head_commit.message` so you need to get commit message via git log
+          commit_msg=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+          echo "commit_msg: ${commit_msg}"
+          echo "commit-msg=${commit_msg}" >> "$GITHUB_OUTPUT"
+      - name: Run aictl for code review
+        id: aictl-review
+        uses: ./ # specify dir where action.yml exists
+        if: ${{ steps.git-diff.outputs.diff-files != '' && !contains(steps.git-diff.outputs.commit-msg, '[skip ai]') }}
+        with:
+          query: Give me a code review summary and reviews for each file.
+          text-files: ${{ steps.git-diff.outputs.diff-files }}
+        env:
+          AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
+      - name: Post aictl review result to PR comment
+        if: steps.aictl-review.outcome != 'skipped'
+        run: |
+          # make sure to checkout to pr branch and resolve detached HEAD state
+          git checkout ${{ github.ref_name }}
+          # TIPS: surrounding with single quote, you can ignore `code` string in outputs
+          cat <<'AICTL_REVIEW_EOF' > response.md
+          ${{ steps.aictl-review.outputs.response }}
+          AICTL_REVIEW_EOF
+          gh pr comment --body-file response.md "${URL}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ github.event.pull_request.html_url }}
 ```
 
 ## In the other CI
