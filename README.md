@@ -23,6 +23,8 @@ Handy CLI accessing generative AI.
       - [Give text files and ask about the file](#give-text-files-and-ask-about-the-file)
   - [GitHub Actions](#github-actions)
     - [Parameters](#parameters)
+      - [inputs](#inputs)
+      - [outputs](#outputs)
     - [Examples](#examples)
       - [Simple Query](#simple-query)
       - [With query options](#with-query-options)
@@ -130,12 +132,22 @@ $(git diff --no-ext-diff)"
 
 ### Parameters
 
+#### inputs
+
 | name         | value type  | required | default | description                                                                                                                                                                                                             |
 | ------------ | ------ | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | query | string | *        | -       | Query that you want to ask to generative AI |
 | output    | string | -        | `text`       | Response format. You can specify `text` or `json`. In `text` format, you can ask your response format in query to get other format like yaml but the actual response may differ according to AI response. |
 | language   | string | -         | `English`     | Which language you want to get response.   |
 | text-files   | string   | -         | -   | An array of text file paths added to query seperated with comma (e.g. file1.go,file2.txt)           |
+
+#### outputs
+
+Please refer to [Passing information between jobs \- GitHub Docs](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/passing-information-between-jobs) for accessing to step outputs.
+
+| name | value type | description |
+| ---- | ---------- | ----------- |
+| response | string | output from generative AI |
 
 ### Examples
 
