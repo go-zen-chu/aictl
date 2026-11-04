@@ -72,8 +72,8 @@ jobs:
       - name: Post aictl review result to PR comment
         if: steps.aictl-review.outcome == 'success'
         run: |
-          # Pass the AI response through env, never inline ${{ }} in the script:
-          # the response text must not be able to run shell commands.
+          # Pass the AI response through env, never inline it as an expression
+          # in the script: the response text must not be able to run shell commands.
           printf '%s\n' "$RESPONSE" > response.md
           gh pr comment --body-file response.md "${URL}"
         env:
