@@ -1,14 +1,16 @@
 name: check-pr
+# pull_request (not pull_request_target): PR code runs without secrets and
+# with a read-only token, so a malicious fork PR cannot steal anything.
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
+permissions:
+  contents: read
 jobs:
   check-go:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up Golang
         uses: actions/setup-go@v5
         with:
@@ -19,54 +21,62 @@ jobs:
         run: go test -v ./...
 
   check-with-aictl:
+    # The AI review needs AICTL_OPENAI_API_KEY and runs `uses: ./` from the PR,
+    # so only run it for branches pushed to this repository, never for forks.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     steps:
       - name: Get number of commits for fetch depth
-        run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
+        run: echo "fetch_depth=$(( commits + 1 ))" >> "$GITHUB_ENV"
         env:
           commits: ${{ github.event.pull_request.commits }}
       - name: Git checkout until fetch-depth
         uses: actions/checkout@v4
         with:
           fetch-depth: ${{ env.fetch_depth }}
-          # need to specify ref to fetch PR head, otherwise you get main branch with no HEAD
+          # need to specify ref to fetch PR head, otherwise you get the merge commit
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Fetch base branch as origin
-        run: git fetch origin ${{ github.event.pull_request.base.ref }}
+        run: git fetch origin "$BASE_REF"
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
       - name: Get the diff between PR and origin branch
         id: git-diff
         run: |
-          # If fetch-depth is not specified in checkout, HEAD cannot be found
           # Make sure to filter out deleted file in `git diff` since you cannot review deleted files
-          diff_files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.event.pull_request.base.ref }}..HEAD | tr '\n' ',' | sed 's/,$/\n/')
+          diff_files=$(git diff --name-only --diff-filter=ACMR "origin/${BASE_REF}..HEAD" | tr '\n' ',' | sed 's/,$//')
           echo "diff_files: ${diff_files}"
           echo "diff-files=${diff_files}" >> "$GITHUB_OUTPUT"
-          # In PR, you cannot get `github.event.head_commit.message` so you need to get commit message via git log
-          commit_msg=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
-          echo "commit_msg: ${commit_msg}"
-          echo "commit-msg=${commit_msg}" >> "$GITHUB_OUTPUT"
+          # Only expose a yes/no flag: a raw multi-line commit message written
+          # to GITHUB_OUTPUT could inject extra outputs.
+          if git log --format=%B -n 1 "$HEAD_SHA" | grep -qF '[skip ai]'; then
+            echo "skip-ai=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip-ai=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - name: Run aictl for code review
         id: aictl-review
         uses: ./ # specify dir where action.yml exists
-        if: ${{ steps.git-diff.outputs.diff-files != '' && !contains(steps.git-diff.outputs.commit-msg, '[skip ai]') }}
+        if: ${{ steps.git-diff.outputs.diff-files != '' && steps.git-diff.outputs.skip-ai != 'true' }}
         with:
           query: Give me a code review summary and reviews for each file.
           text-files: ${{ steps.git-diff.outputs.diff-files }}
         env:
           AICTL_OPENAI_API_KEY: ${{ secrets.AICTL_OPENAI_API_KEY }}
       - name: Post aictl review result to PR comment
-        if: steps.aictl-review.outcome != 'skipped'
+        if: steps.aictl-review.outcome == 'success'
         run: |
-          # make sure to checkout to pr branch and resolve detached HEAD state
-          git checkout ${{ github.ref_name }}
-          # TIPS: surrounding with single quote, you can ignore `code` string in outputs
-          cat <<'AICTL_REVIEW_EOF' > response.md
-          ${{ steps.aictl-review.outputs.response }}
-          AICTL_REVIEW_EOF
+          # Pass the AI response through env, never inline it as an expression
+          # in the script: the response text must not be able to run shell commands.
+          printf '%s\n' "$RESPONSE" > response.md
           gh pr comment --body-file response.md "${URL}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          RESPONSE: ${{ steps.aictl-review.outputs.response }}
           URL: ${{ github.event.pull_request.html_url }}
-
